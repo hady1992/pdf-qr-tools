@@ -11,6 +11,9 @@ importers:
       fabric:
         specifier: ^6.7.1
         version: 6.9.1
+      jsbarcode:
+        specifier: ^3.12.3
+        version: 3.12.3
       pdf-lib:
         specifier: ^1.17.1
         version: 1.17.1
@@ -709,6 +712,9 @@ packages:
 
   is-potential-custom-element-name@1.0.1:
     resolution: {integrity: sha512-bCYeRA2rVibKZd+s2625gGnGF/t7DSqDs4dP7CrLA1m7jKWz6pps0LpYLJN8Q64HtmPKJ1hrN3nzPNKFEKOUiQ==}
+
+  jsbarcode@3.12.3:
+    resolution: {integrity: sha512-CuHU9hC6dPsHF5oVFMo8NW76uQVjH4L22CsP4hW+dNnGywJHC/B0ThA1CTDVLnxKLrrpYdicBLnd2xsgTfRnvg==}
 
   jsdom@20.0.3:
     resolution: {integrity: sha512-SYhBvTh89tTfCD/CRdSOm13mOBa42iTaTyfyEWBdKcGdPxPtLFBXuHR8XHb33YNYaP+lLbmSvBTsnoesCNJEsQ==}
@@ -1694,6 +1700,8 @@ snapshots:
 
   is-potential-custom-element-name@1.0.1:
     optional: true
+
+  jsbarcode@3.12.3: {}
 
   jsdom@20.0.3(canvas@2.11.2):
     dependencies:
