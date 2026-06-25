@@ -1,0 +1,17 @@
+{
+  "name": "PDF & QR Tools",
+  "short_name": "PDF QR",
+  "description": "Edit PDF files and create QR codes securely in your browser.",
+  "start_url": "./#/home",
+  "display": "standalone",
+  "background_color": "#fbfcf8",
+  "theme_color": "#102b2c",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
