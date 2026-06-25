@@ -1,5 +1,6 @@
 import "./style.css";
 import QRCode from "qrcode";
+import JsBarcode from "jsbarcode";
 
 let pdfjsLib;
 let PDFDocument;
@@ -676,6 +677,15 @@ const iconPaths = {
   file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/>',
   qr: '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 20h2M20 14h1v2M18 14v2"/>',
   image: '<rect width="20" height="16" x="2" y="4" rx="2"/><circle cx="8" cy="9" r="2"/><path d="m22 15-5-5L5 20"/>',
+  wifi: '<path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 20h.01M2 9a15 15 0 0 1 20 0"/>',
+  mapPin: '<path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="2.5"/>',
+  menuBook: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5z"/><path d="M4 6.5v13M8 8h8M8 12h6"/>',
+  wallet: '<path d="M3 6h16a2 2 0 0 1 2 2v10H5a2 2 0 0 1-2-2z"/><path d="M16 10h5v5h-5a2.5 2.5 0 0 1 0-5zM5 6V4h12"/>',
+  bank: '<path d="m3 10 9-6 9 6M5 10v8M9 10v8M15 10v8M19 10v8M3 20h18"/>',
+  message: '<path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8M8 13h5"/>',
+  calendar: '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01"/>',
+  share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"/>',
+  barcode: '<path d="M3 5v14M7 5v14M10 5v14M14 5v14M17 5v14M21 5v14"/>',
   shield: '<path d="M20 13c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V5l8-3 8 3z"/><path d="m9 12 2 2 4-4"/>',
   globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 0 20M12 2a15.3 15.3 0 0 0 0 20"/>',
   user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
@@ -732,6 +742,11 @@ const appState = {
   route: getRouteFromLocation(),
   qrType: "url",
   qrSvg: "",
+  qrLogoDataUrl: "",
+  qrLogoSize: 18,
+  qrPrintPreset: "5cm",
+  barcodeSvg: "",
+  generatedKind: "qr",
   imageQrSvg: "",
   imageQrUrl: "",
   imageQrFile: null,
@@ -825,6 +840,64 @@ Object.assign(runtimeTranslations.ar, {
   openImage: "\u0639\u0631\u0636 \u0627\u0644\u0635\u0648\u0631\u0629",
   imageUnavailable: "\u0627\u0644\u0635\u0648\u0631\u0629 \u063a\u064a\u0631 \u0645\u062a\u0627\u062d\u0629 \u0623\u0648 \u0627\u0646\u062a\u0647\u062a \u0645\u062f\u062a\u0647\u0627.",
   expiresLabel: "\u062a\u0646\u062a\u0647\u064a \u0641\u064a",
+  smartQrTools: "\u0623\u062f\u0648\u0627\u062a QR \u0627\u0644\u0630\u0643\u064a\u0629",
+  wifiQr: "Wi-Fi",
+  vcardQr: "vCard",
+  mapsQr: "Google Maps",
+  menuQr: "\u0645\u0646\u064a\u0648 \u0645\u0637\u0639\u0645",
+  paypalQr: "PayPal",
+  ibanQr: "\u062f\u0641\u0639 IBAN",
+  smsQr: "SMS",
+  eventQr: "\u062d\u062f\u062b / \u062a\u0642\u0648\u064a\u0645",
+  socialQr: "\u062a\u0648\u0627\u0635\u0644 \u0627\u062c\u062a\u0645\u0627\u0639\u064a",
+  barcodeGenerator: "\u0645\u0648\u0644\u0651\u062f Barcode",
+  networkName: "\u0627\u0633\u0645 \u0634\u0628\u0643\u0629 Wi-Fi",
+  wifiPassword: "\u0643\u0644\u0645\u0629 \u0645\u0631\u0648\u0631 \u0627\u0644\u0634\u0628\u0643\u0629",
+  encryption: "\u0646\u0648\u0639 \u0627\u0644\u062d\u0645\u0627\u064a\u0629",
+  hiddenNetwork: "\u0634\u0628\u0643\u0629 \u0645\u062e\u0641\u064a\u0629",
+  fullName: "\u0627\u0644\u0627\u0633\u0645 \u0627\u0644\u0643\u0627\u0645\u0644",
+  organization: "\u0627\u0644\u0634\u0631\u0643\u0629",
+  address: "\u0627\u0644\u0639\u0646\u0648\u0627\u0646",
+  mapsPlace: "\u0627\u0644\u0639\u0646\u0648\u0627\u0646 \u0623\u0648 \u0627\u0644\u0645\u0643\u0627\u0646",
+  menuUrl: "\u0631\u0627\u0628\u0637 \u0642\u0627\u0626\u0645\u0629 \u0627\u0644\u0637\u0639\u0627\u0645",
+  paypalAccount: "\u0628\u0631\u064a\u062f PayPal",
+  amount: "\u0627\u0644\u0645\u0628\u0644\u063a",
+  currency: "\u0627\u0644\u0639\u0645\u0644\u0629",
+  recipient: "\u0627\u0633\u0645 \u0627\u0644\u0645\u0633\u062a\u0644\u0645",
+  iban: "IBAN",
+  bic: "BIC / SWIFT",
+  paymentReason: "\u0633\u0628\u0628 \u0627\u0644\u062f\u0641\u0639",
+  smsMessage: "\u0631\u0633\u0627\u0644\u0629 SMS",
+  eventTitle: "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u062d\u062f\u062b",
+  eventStart: "\u0627\u0644\u0628\u062f\u0627\u064a\u0629",
+  eventEnd: "\u0627\u0644\u0646\u0647\u0627\u064a\u0629",
+  location: "\u0627\u0644\u0645\u0643\u0627\u0646",
+  socialPlatform: "\u0627\u0644\u0645\u0646\u0635\u0629",
+  profileUrl: "\u0631\u0627\u0628\u0637 \u0627\u0644\u062d\u0633\u0627\u0628",
+  barcodeValue: "\u0642\u064a\u0645\u0629 Barcode",
+  barcodeFormat: "\u0646\u0648\u0639 Barcode",
+  qrWithLogo: "QR \u0645\u0639 Logo",
+  uploadLogo: "\u0631\u0641\u0639 Logo",
+  logoSize: "\u062d\u062c\u0645 \u0627\u0644\u0644\u0648\u063a\u0648",
+  logoWarning: "\u0627\u0644\u0644\u0648\u063a\u0648 \u0627\u0644\u0643\u0628\u064a\u0631 \u0642\u062f \u064a\u062c\u0639\u0644 QR \u063a\u064a\u0631 \u0642\u0627\u0628\u0644 \u0644\u0644\u0645\u0633\u062d. \u064a\u064f\u0646\u0635\u062d \u0628\u062d\u062c\u0645 15\u201320%.",
+  printSize: "\u0645\u0642\u0627\u0633 \u0627\u0644\u0637\u0628\u0627\u0639\u0629",
+  size3cm: "3\u00d73 cm",
+  size5cm: "5\u00d75 cm",
+  size10cm: "10\u00d710 cm",
+  a4Multiple: "A4 \u2014 \u0639\u062f\u0629 \u0623\u0643\u0648\u0627\u062f",
+  businessCard: "\u0628\u0637\u0627\u0642\u0629 \u0639\u0645\u0644",
+  tableCard: "\u0628\u0637\u0627\u0642\u0629 \u0637\u0627\u0648\u0644\u0629 \u0645\u0637\u0639\u0645",
+  downloadPrintPdf: "\u062a\u062d\u0645\u064a\u0644 PDF",
+  howToUse: "\u0643\u064a\u0641 \u062a\u0633\u062a\u062e\u062f\u0645 \u0627\u0644\u0623\u062f\u0627\u0629\u061f",
+  howToUseCopy: "\u0627\u0645\u0644\u0623 \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u0645\u0637\u0644\u0648\u0628\u0629\u060c \u062e\u0635\u0651\u0635 \u0627\u0644\u0623\u0644\u0648\u0627\u0646 \u0623\u0648 \u0627\u0644\u0644\u0648\u063a\u0648\u060c \u062b\u0645 \u0627\u0636\u063a\u0637 \u0625\u0646\u0634\u0627\u0621 QR \u0648\u0627\u062e\u062a\u0628\u0631\u0647 \u0642\u0628\u0644 \u0627\u0644\u0646\u0634\u0631.",
+  printingTips: "\u0646\u0635\u0627\u0626\u062d \u0644\u0644\u0637\u0628\u0627\u0639\u0629",
+  printingTipsCopy: "\u0627\u0633\u062a\u062e\u062f\u0645 \u062a\u0628\u0627\u064a\u0646\u064b\u0627 \u0642\u0648\u064a\u064b\u0627\u060c \u0627\u062a\u0631\u0643 \u0645\u0633\u0627\u062d\u0629 \u0628\u064a\u0636\u0627\u0621 \u062d\u0648\u0644 \u0627\u0644\u0643\u0648\u062f\u060c \u0648\u0644\u0627 \u062a\u0637\u0628\u0639 QR \u0628\u062d\u062c\u0645 \u0623\u0642\u0644 \u0645\u0646 3 cm.",
+  businessExamples: "\u0623\u0645\u062b\u0644\u0629 \u0644\u0623\u0635\u062d\u0627\u0628 \u0627\u0644\u0645\u0634\u0627\u0631\u064a\u0639",
+  businessExamplesCopy: "\u0642\u0648\u0627\u0626\u0645 \u0627\u0644\u0645\u0637\u0627\u0639\u0645\u060c \u0628\u0637\u0627\u0642\u0627\u062a \u0627\u0644\u0639\u0645\u0644\u060c Wi-Fi \u0644\u0644\u0636\u064a\u0648\u0641\u060c \u0631\u0648\u0627\u0628\u0637 \u0627\u0644\u062f\u0641\u0639\u060c \u0627\u0644\u0645\u0648\u0627\u0642\u0639\u060c \u0648\u0627\u0644\u0639\u0631\u0648\u0636.",
+  qrFaqQuestion: "\u0644\u0645\u0627\u0630\u0627 \u0644\u0627 \u064a\u0639\u0645\u0644 QR \u0628\u0639\u062f \u0627\u0644\u0637\u0628\u0627\u0639\u0629\u061f",
+  qrFaqAnswer: "\u063a\u0627\u0644\u0628\u064b\u0627 \u0628\u0633\u0628\u0628 \u0636\u0639\u0641 \u0627\u0644\u062a\u0628\u0627\u064a\u0646\u060c \u0635\u063a\u0631 \u0627\u0644\u062d\u062c\u0645\u060c \u0642\u0635 \u0627\u0644\u0647\u0627\u0645\u0634 \u0627\u0644\u0623\u0628\u064a\u0636\u060c \u0623\u0648 \u0643\u0628\u0631 \u0627\u0644\u0644\u0648\u063a\u0648.",
+  downloadImage: "\u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u0635\u0648\u0631\u0629",
+  description: "\u0627\u0644\u0648\u0635\u0641",
 });
 Object.assign(runtimeTranslations.de, {
   eraserSize: "Radierergr\u00f6\u00dfe", imageQr: "Bild-QR", imageQrTitle: "Bild in einen sicheren QR-Code verwandeln",
@@ -841,6 +914,23 @@ Object.assign(runtimeTranslations.de, {
   faq3q: "Wie funktioniert der Passwortschutz?", faq3a: "Vor der Anzeige wird das Passwort verlangt. Gespeichert wird nur ein sicherer Passwort-Hash.",
   imageProtected: "Dieses Bild ist gesch\u00fctzt", enterImagePassword: "Passwort eingeben, um das Bild zu sehen", openImage: "Bild anzeigen",
   imageUnavailable: "Das Bild ist nicht verf\u00fcgbar oder abgelaufen.", expiresLabel: "L\u00e4uft ab am",
+  smartQrTools: "Smart QR Tools", wifiQr: "WLAN", vcardQr: "vCard", mapsQr: "Google Maps", menuQr: "Speisekarte",
+  paypalQr: "PayPal", ibanQr: "IBAN-Zahlung", smsQr: "SMS", eventQr: "Termin/Kalender", socialQr: "Social Media", barcodeGenerator: "Barcode Generator",
+  networkName: "WLAN-Name", wifiPassword: "WLAN-Passwort", encryption: "Verschl\u00fcsselung", hiddenNetwork: "Verstecktes Netzwerk",
+  fullName: "Vollst\u00e4ndiger Name", organization: "Unternehmen", address: "Adresse", mapsPlace: "Adresse oder Ort",
+  menuUrl: "Link zur Speisekarte", paypalAccount: "PayPal-E-Mail", amount: "Betrag", currency: "W\u00e4hrung",
+  recipient: "Empf\u00e4nger", iban: "IBAN", bic: "BIC / SWIFT", paymentReason: "Verwendungszweck", smsMessage: "SMS-Nachricht",
+  eventTitle: "Termintitel", eventStart: "Beginn", eventEnd: "Ende", location: "Ort", socialPlatform: "Plattform",
+  profileUrl: "Profil-Link", barcodeValue: "Barcode-Wert", barcodeFormat: "Barcode-Format", qrWithLogo: "QR mit Logo",
+  uploadLogo: "Logo hochladen", logoSize: "Logogr\u00f6\u00dfe", logoWarning: "Ein zu gro\u00dfes Logo kann den QR-Code unlesbar machen. Empfohlen sind 15\u201320 %.",
+  printSize: "Druckformat", size3cm: "3\u00d73 cm", size5cm: "5\u00d75 cm", size10cm: "10\u00d710 cm",
+  a4Multiple: "A4 \u2014 mehrere QR-Codes", businessCard: "Visitenkarte", tableCard: "Restaurant-Tischkarte", downloadPrintPdf: "PDF herunterladen",
+  howToUse: "Wie wird das Tool verwendet?", howToUseCopy: "Daten eingeben, Farben oder Logo anpassen, QR-Code erstellen und vor der Ver\u00f6ffentlichung testen.",
+  printingTips: "Drucktipps", printingTipsCopy: "Hohen Kontrast, einen freien Rand und mindestens 3 cm Druckgr\u00f6\u00dfe verwenden.",
+  businessExamples: "Beispiele f\u00fcr Unternehmen", businessExamplesCopy: "Speisekarten, Visitenkarten, G\u00e4ste-WLAN, Zahlungen, Standorte und Aktionen.",
+  qrFaqQuestion: "Warum funktioniert ein gedruckter QR-Code nicht?", qrFaqAnswer: "H\u00e4ufig wegen schwachem Kontrast, zu kleiner Gr\u00f6\u00dfe, fehlendem Rand oder zu gro\u00dfem Logo.",
+  downloadImage: "Bild herunterladen",
+  description: "Beschreibung",
 });
 Object.assign(runtimeTranslations.en, {
   eraserSize: "Eraser size", imageQr: "Image QR", imageQrTitle: "Turn an image into a secure QR code",
@@ -857,6 +947,23 @@ Object.assign(runtimeTranslations.en, {
   faq3q: "How does password protection work?", faq3a: "The viewer must enter the password before the image is shown. Only a secure password hash is stored.",
   imageProtected: "This image is protected", enterImagePassword: "Enter the password to view the image", openImage: "View image",
   imageUnavailable: "The image is unavailable or has expired.", expiresLabel: "Expires on",
+  smartQrTools: "Smart QR Tools", wifiQr: "Wi-Fi", vcardQr: "vCard", mapsQr: "Google Maps", menuQr: "Restaurant Menu",
+  paypalQr: "PayPal", ibanQr: "IBAN Payment", smsQr: "SMS", eventQr: "Event/Calendar", socialQr: "Social Media", barcodeGenerator: "Barcode Generator",
+  networkName: "Wi-Fi network name", wifiPassword: "Wi-Fi password", encryption: "Security", hiddenNetwork: "Hidden network",
+  fullName: "Full name", organization: "Organization", address: "Address", mapsPlace: "Address or place",
+  menuUrl: "Menu URL", paypalAccount: "PayPal email", amount: "Amount", currency: "Currency", recipient: "Recipient",
+  iban: "IBAN", bic: "BIC / SWIFT", paymentReason: "Payment reason", smsMessage: "SMS message", eventTitle: "Event title",
+  eventStart: "Start", eventEnd: "End", location: "Location", socialPlatform: "Platform", profileUrl: "Profile URL",
+  barcodeValue: "Barcode value", barcodeFormat: "Barcode format", qrWithLogo: "QR with Logo", uploadLogo: "Upload logo",
+  logoSize: "Logo size", logoWarning: "A large logo can make the QR code impossible to scan. Keep it around 15\u201320%.",
+  printSize: "Print size", size3cm: "3\u00d73 cm", size5cm: "5\u00d75 cm", size10cm: "10\u00d710 cm",
+  a4Multiple: "A4 sheet \u2014 multiple QR codes", businessCard: "Business card", tableCard: "Restaurant table card", downloadPrintPdf: "Download PDF",
+  howToUse: "How do I use this tool?", howToUseCopy: "Enter the details, customize colors or logo, generate the code, and test it before publishing.",
+  printingTips: "Printing tips", printingTipsCopy: "Use strong contrast, keep a white quiet zone, and print QR codes at least 3 cm wide.",
+  businessExamples: "Business examples", businessExamplesCopy: "Menus, business cards, guest Wi-Fi, payments, locations, events and promotions.",
+  qrFaqQuestion: "Why does a printed QR code fail?", qrFaqAnswer: "Usually because of low contrast, small size, a cropped quiet zone, or an oversized logo.",
+  downloadImage: "Download image",
+  description: "Description",
 });
 
 const t = (key) => runtimeTranslations[appState.lang]?.[key] ?? translations[appState.lang][key] ?? key;
@@ -1344,49 +1451,41 @@ function propertiesPanelTemplate() {
 }
 
 function qrTemplate() {
-  const inputMeta = qrInputMeta();
+  const tool = smartQrTools().find((item) => item.type === appState.qrType) || smartQrTools()[0];
+  const isBarcode = appState.qrType === "barcode";
   return `
-    <main class="page-main">
+    <main class="page-main smart-qr-page">
       <div class="page-intro container">
-        <div class="eyebrow"><span class="eyebrow-dot"></span>${t("qrBadge")}</div>
+        <div class="eyebrow"><span class="eyebrow-dot"></span>${t("smartQrTools")}</div>
         <h1>${t("qrTitle")}</h1>
         <p>${t("qrCopy")}</p>
       </div>
-      <div class="container">${adSlot("qrTop", "مساحة إعلانية", "wide")}</div>
+      <div class="container">${adSlot("qrTop", "Google AdSense", "wide")}</div>
       <div class="container qr-layout">
         <section class="qr-form-card">
-          <div class="qr-tabs">
-            ${qrTab("url", "link", "url")}
-            ${qrTab("phone", "phone", "phone")}
-            ${qrTab("text", "type", "plainText")}
-            ${qrTab("email", "mail", "email")}
-            ${qrTab("whatsapp", "whatsapp", "whatsapp")}
+          <div class="smart-tools-grid">
+            ${smartQrTools().map((item) => qrTab(item.type, item.icon, item.label)).join("")}
           </div>
           <form id="qrForm">
-            ${
-              appState.qrType === "whatsapp"
-                ? `
-                  <label class="qr-field-label" for="qrWhatsappPhone">${t("enterWhatsapp")}</label>
-                  <input id="qrWhatsappPhone" class="qr-main-input" type="tel" placeholder="${t("phonePlaceholder")}">
-                  <label class="qr-field-label" for="qrWhatsappMessage">${t("whatsappMessage")}</label>
-                  <textarea id="qrWhatsappMessage" class="qr-main-input" placeholder="${t("whatsappMessagePlaceholder")}"></textarea>
-                `
-                : `
-                  <label class="qr-field-label" for="qrInput">${inputMeta.label}</label>
-                  ${
-                    appState.qrType === "text"
-                      ? `<textarea id="qrInput" class="qr-main-input" placeholder="${inputMeta.placeholder}"></textarea>`
-                      : `<input id="qrInput" class="qr-main-input" type="${inputMeta.type}" placeholder="${inputMeta.placeholder}">`
-                  }
-                  ${appState.qrType === "url" ? `<div class="field-help">${icon("sparkle", 14)} ${t("smartUrlHint")}</div>` : ""}
-                `
-            }
-            <div class="color-grid">
+            <div class="smart-tool-heading">${icon(tool.icon, 22)}<h2>${t(tool.label)}</h2></div>
+            <div class="smart-form-grid">${qrFieldsTemplate()}</div>
+            <div class="color-grid" ${isBarcode ? "hidden" : ""}>
               <div class="color-card"><input type="color" id="qrForeground" value="#153232"><div><span>${t("foreground")}</span><strong id="qrForegroundValue">#153232</strong></div></div>
               <div class="color-card"><input type="color" id="qrBackground" value="#ffffff"><div><span>${t("background")}</span><strong id="qrBackgroundValue">#ffffff</strong></div></div>
             </div>
+            <section class="logo-controls" ${isBarcode ? "hidden" : ""}>
+              <div class="logo-control-head"><strong>${t("qrWithLogo")}</strong><small>PNG / JPG / SVG</small></div>
+              <div class="logo-control-row">
+                <label class="button soft small" for="qrLogoInput">${icon("image", 16)} ${t("uploadLogo")}</label>
+                <input id="qrLogoInput" type="file" accept="image/png,image/jpeg,image/svg+xml" hidden>
+                <span id="qrLogoName"></span>
+              </div>
+              <label class="range-label" for="qrLogoSize">${t("logoSize")} <span id="qrLogoSizeValue">${appState.qrLogoSize}%</span></label>
+              <input id="qrLogoSize" type="range" min="10" max="28" value="${appState.qrLogoSize}">
+              <p class="logo-warning">${icon("info", 15)} ${t("logoWarning")}</p>
+            </section>
             <div class="qr-form-actions">
-              <button class="button primary" type="submit">${icon("qr", 18)} ${t("generateQr")}</button>
+              <button class="button primary" type="submit">${icon(isBarcode ? "barcode" : "qr", 18)} ${isBarcode ? t("barcodeGenerator") : t("generateQr")}</button>
               <button class="button secondary" type="button" id="resetQr">${t("reset")}</button>
             </div>
           </form>
@@ -1394,22 +1493,36 @@ function qrTemplate() {
         <aside class="qr-preview-card">
           <h2 class="qr-preview-title">${t("livePreview")}</h2>
           <div class="qr-canvas-wrap" id="qrCanvasWrap">
-            <div class="qr-placeholder" id="qrPlaceholder">${icon("qr", 43, 1.4)}<small>${t("previewEmpty")}</small></div>
+            <div class="qr-placeholder" id="qrPlaceholder">${icon(isBarcode ? "barcode" : "qr", 43, 1.4)}<small>${t("previewEmpty")}</small></div>
             <canvas id="qrCanvas" hidden></canvas>
+            <svg id="barcodeSvg" class="barcode-preview" hidden></svg>
           </div>
           <div class="qr-result-meta" id="qrResultMeta" hidden>
             <span>${icon("check", 15)} ${t("scanReady")}</span>
             <small>${t("encodedContent")}</small>
             <code id="qrResultValue"></code>
           </div>
-          <div class="download-row">
-            <button class="button secondary small" id="downloadPng" disabled>${icon("download", 16)} ${t("downloadPng")}</button>
-            <button class="button secondary small" id="downloadSvg" disabled>${icon("download", 16)} ${t("downloadSvg")}</button>
+          <div class="print-preset">
+            <label for="qrPrintPreset">${t("printSize")}</label>
+            <select id="qrPrintPreset">
+              <option value="3cm" ${appState.qrPrintPreset === "3cm" ? "selected" : ""}>${t("size3cm")}</option>
+              <option value="5cm" ${appState.qrPrintPreset === "5cm" ? "selected" : ""}>${t("size5cm")}</option>
+              <option value="10cm" ${appState.qrPrintPreset === "10cm" ? "selected" : ""}>${t("size10cm")}</option>
+              <option value="a4" ${appState.qrPrintPreset === "a4" ? "selected" : ""}>${t("a4Multiple")}</option>
+              <option value="business" ${appState.qrPrintPreset === "business" ? "selected" : ""}>${t("businessCard")}</option>
+              <option value="table" ${appState.qrPrintPreset === "table" ? "selected" : ""}>${t("tableCard")}</option>
+            </select>
+          </div>
+          <div class="download-row three">
+            <button class="button secondary small" id="downloadPng" disabled>${icon("download", 16)} PNG</button>
+            <button class="button secondary small" id="downloadSvg" disabled>${icon("download", 16)} SVG</button>
+            <button class="button secondary small" id="downloadQrPdf" disabled>${icon("download", 16)} PDF</button>
           </div>
           <div class="qr-tip">${icon("info", 16)}<span>${t("qrTip")}</span></div>
-          ${adSlot("qrSide", "مساحة إعلانية", "box")}
+          ${adSlot("qrSide", "Google AdSense", "box")}
         </aside>
       </div>
+      ${qrHelpTemplate()}
     </main>
   `;
 }
@@ -1418,14 +1531,54 @@ function qrTab(type, iconName, labelKey) {
   return `<button type="button" class="qr-tab ${appState.qrType === type ? "active" : ""}" data-qr-type="${type}">${icon(iconName, 17)} ${t(labelKey)}</button>`;
 }
 
-function qrInputMeta() {
-  const meta = {
-    url: { label: t("enterUrl"), placeholder: t("urlPlaceholder"), type: "text" },
-    phone: { label: t("enterPhone"), placeholder: t("phonePlaceholder"), type: "tel" },
-    text: { label: t("enterText"), placeholder: t("textPlaceholder"), type: "text" },
-    email: { label: t("enterEmail"), placeholder: t("emailPlaceholder"), type: "email" },
-  };
-  return meta[appState.qrType];
+function smartQrTools() {
+  return [
+    ["url", "link", "url"], ["wifi", "wifi", "wifiQr"], ["vcard", "user", "vcardQr"], ["maps", "mapPin", "mapsQr"],
+    ["menu", "menuBook", "menuQr"], ["paypal", "wallet", "paypalQr"], ["iban", "bank", "ibanQr"], ["sms", "message", "smsQr"],
+    ["event", "calendar", "eventQr"], ["social", "share", "socialQr"], ["whatsapp", "whatsapp", "whatsapp"],
+    ["phone", "phone", "phone"], ["email", "mail", "email"], ["text", "type", "plainText"], ["barcode", "barcode", "barcodeGenerator"],
+  ].map(([type, icon, label]) => ({ type, icon, label }));
+}
+
+function qrField(name, label, type = "text", options = {}) {
+  return `<div class="field ${options.full ? "full" : ""}"><label for="qr-${name}">${label}</label><input class="qr-main-input" id="qr-${name}" name="${name}" type="${type}" ${options.required === false ? "" : "required"} ${options.placeholder ? `placeholder="${escapeHtml(options.placeholder)}"` : ""} ${options.extra || ""}></div>`;
+}
+
+function qrTextarea(name, label, required = true) {
+  return `<div class="field full"><label for="qr-${name}">${label}</label><textarea class="qr-main-input" id="qr-${name}" name="${name}" ${required ? "required" : ""}></textarea></div>`;
+}
+
+function qrSelect(name, label, options) {
+  return `<div class="field"><label for="qr-${name}">${label}</label><select class="qr-main-input" id="qr-${name}" name="${name}">${options.map(([value, text]) => `<option value="${value}">${text}</option>`).join("")}</select></div>`;
+}
+
+function qrFieldsTemplate() {
+  switch (appState.qrType) {
+    case "wifi": return `${qrField("ssid", t("networkName"))}${qrField("password", t("wifiPassword"), "text", { required: false })}${qrSelect("encryption", t("encryption"), [["WPA", "WPA/WPA2"], ["WEP", "WEP"], ["nopass", "Open"]])}<label class="check-field"><input name="hidden" type="checkbox"> ${t("hiddenNetwork")}</label>`;
+    case "vcard": return `${qrField("name", t("fullName"))}${qrField("organization", t("organization"), "text", { required: false })}${qrField("phone", t("phone"), "tel")}${qrField("email", t("email"), "email", { required: false })}${qrField("url", t("url"), "url", { required: false })}${qrField("address", t("address"), "text", { required: false, full: true })}`;
+    case "maps": return qrField("place", t("mapsPlace"), "text", { full: true });
+    case "menu": return qrField("url", t("menuUrl"), "url", { full: true });
+    case "paypal": return `${qrField("email", t("paypalAccount"), "email")}${qrField("amount", t("amount"), "number", { required: false, extra: 'min="0" step="0.01"' })}${qrSelect("currency", t("currency"), [["EUR", "EUR"], ["USD", "USD"], ["GBP", "GBP"]])}`;
+    case "iban": return `${qrField("recipient", t("recipient"))}${qrField("iban", t("iban"))}${qrField("bic", t("bic"), "text", { required: false })}${qrField("amount", t("amount"), "number", { extra: 'min="0.01" step="0.01"' })}${qrField("reason", t("paymentReason"), "text", { required: false, full: true })}`;
+    case "sms": return `${qrField("phone", t("enterPhone"), "tel")}${qrTextarea("message", t("smsMessage"))}`;
+    case "event": return `${qrField("title", t("eventTitle"))}${qrField("start", t("eventStart"), "datetime-local")}${qrField("end", t("eventEnd"), "datetime-local")}${qrField("location", t("location"), "text", { required: false })}${qrTextarea("description", t("description"), false)}`;
+    case "social": return `${qrSelect("platform", t("socialPlatform"), [["instagram", "Instagram"], ["facebook", "Facebook"], ["tiktok", "TikTok"], ["linkedin", "LinkedIn"], ["youtube", "YouTube"], ["x", "X / Twitter"]])}${qrField("url", t("profileUrl"), "url")}`;
+    case "whatsapp": return `${qrField("phone", t("enterWhatsapp"), "tel")}${qrTextarea("message", t("whatsappMessage"), false)}`;
+    case "phone": return qrField("phone", t("enterPhone"), "tel", { full: true });
+    case "email": return qrField("email", t("enterEmail"), "email", { full: true });
+    case "text": return qrTextarea("text", t("enterText"));
+    case "barcode": return `${qrSelect("format", t("barcodeFormat"), [["CODE128", "Code128"], ["EAN13", "EAN-13"], ["EAN8", "EAN-8"], ["UPC", "UPC-A"]])}${qrField("value", t("barcodeValue"))}`;
+    default: return `${qrField("url", t("enterUrl"), "text", { full: true, placeholder: t("urlPlaceholder") })}<div class="field-help full">${icon("sparkle", 14)} ${t("smartUrlHint")}</div>`;
+  }
+}
+
+function qrHelpTemplate() {
+  return `<section class="container qr-help-grid">
+    <article>${icon("sparkle", 22)}<h3>${t("howToUse")}</h3><p>${t("howToUseCopy")}</p></article>
+    <article>${icon("file", 22)}<h3>${t("printingTips")}</h3><p>${t("printingTipsCopy")}</p></article>
+    <article>${icon("user", 22)}<h3>${t("businessExamples")}</h3><p>${t("businessExamplesCopy")}</p></article>
+    <details><summary>${t("qrFaqQuestion")}</summary><p>${t("qrFaqAnswer")}</p></details>
+  </section>`;
 }
 
 function imageQrTemplate() {
@@ -1583,6 +1736,7 @@ async function renderApp() {
           ? "imageQr"
           : "home",
   )}`;
+  updatePageMeta();
 
   const routes = {
     home: homeTemplate,
@@ -1604,12 +1758,49 @@ async function renderApp() {
       await renderEditorDocument();
     }
   }
-  if (appState.route === "qr") bindQrEvents();
+  if (appState.route === "qr") bindSmartQrEvents();
   if (appState.route === "image-qr-code") bindImageQrEvents();
   if (appState.route === "view-image") loadViewImage();
   if (appState.route === "contact") bindContactEvents();
   scrollToTopImmediate();
   setTimeout(scrollToTopImmediate, 0);
+}
+
+function updatePageMeta() {
+  const content = {
+    ar: {
+      home: ["PDF & QR Tools — أدوات PDF وQR مجانية", "تعديل PDF وإنشاء QR وBarcode باحتراف، مع دعم العربية والخصوصية."],
+      editor: ["محرر PDF احترافي أونلاين", "أضف نصوصًا ورسومات ونظّم صفحات PDF مباشرة داخل متصفحك."],
+      qr: ["Smart QR Tools — إنشاء QR وBarcode", "أنشئ Wi-Fi وvCard وMaps والدفع والمناسبات وBarcode مع Logo ومقاسات طباعة."],
+      "image-qr-code": ["Image QR Code Generator", "ارفع صورة وأنشئ رابطًا آمنًا وQR Code مع حماية وتنزيل."],
+      privacy: ["سياسة الخصوصية — PDF & QR Tools", "تعرف على طريقة معالجة ملفاتك وحماية بياناتك."],
+      contact: ["تواصل معنا — PDF & QR Tools", "أرسل اقتراحاتك وأسئلتك حول أدوات PDF وQR."],
+    },
+    de: {
+      home: ["PDF & QR Tools — Kostenlose PDF- und QR-Werkzeuge", "PDF bearbeiten sowie QR-Codes und Barcodes direkt im Browser erstellen."],
+      editor: ["Professioneller PDF-Editor online", "Text, Zeichnungen und Seiten direkt im Browser bearbeiten."],
+      qr: ["Smart QR Tools — QR-Code und Barcode erstellen", "WLAN, vCard, Maps, Zahlungen, Termine und Barcodes mit Logo und Druckformaten."],
+      "image-qr-code": ["Bild-QR-Code Generator", "Bild hochladen, sicheren Link und QR-Code mit Schutz und Download erstellen."],
+      privacy: ["Datenschutz — PDF & QR Tools", "Informationen zur lokalen Verarbeitung und zum Schutz Ihrer Daten."],
+      contact: ["Kontakt — PDF & QR Tools", "Fragen und Vorschläge zu unseren PDF- und QR-Werkzeugen."],
+    },
+    en: {
+      home: ["PDF & QR Tools — Free PDF and QR tools", "Edit PDF files and create QR codes and barcodes securely in your browser."],
+      editor: ["Professional online PDF editor", "Add text, drawings and organize PDF pages directly in your browser."],
+      qr: ["Smart QR Tools — QR and Barcode Generator", "Create Wi-Fi, vCard, Maps, payment, event and barcode codes with logos and print sizes."],
+      "image-qr-code": ["Image QR Code Generator", "Upload an image and create a secure viewing link and downloadable QR code."],
+      privacy: ["Privacy Policy — PDF & QR Tools", "Learn how files and data are processed and protected."],
+      contact: ["Contact — PDF & QR Tools", "Send questions and suggestions about our PDF and QR tools."],
+    },
+  };
+  const [title, description] = content[appState.lang]?.[appState.route] || content[appState.lang]?.home || content.en.home;
+  document.title = title;
+  const descriptionMeta = document.querySelector('meta[name="description"]');
+  const ogTitle = document.querySelector('meta[property="og:title"]');
+  const ogDescription = document.querySelector('meta[property="og:description"]');
+  descriptionMeta?.setAttribute("content", description);
+  ogTitle?.setAttribute("content", title);
+  ogDescription?.setAttribute("content", description);
 }
 
 function initAdsenseSlots() {
@@ -2927,6 +3118,245 @@ function downloadQrSvg() {
   showToast(t("qrDownloaded"));
 }
 
+function bindSmartQrEvents() {
+  document.querySelectorAll("[data-qr-type]").forEach((button) => button.addEventListener("click", () => {
+    appState.qrType = button.dataset.qrType;
+    appState.qrSvg = "";
+    appState.barcodeSvg = "";
+    renderApp();
+  }));
+  document.querySelector("#qrForm")?.addEventListener("submit", generateSmartQr);
+  document.querySelector("#resetQr")?.addEventListener("click", () => {
+    document.querySelector("#qrForm")?.reset();
+    document.querySelector("#qrCanvas")?.setAttribute("hidden", "");
+    document.querySelector("#barcodeSvg")?.setAttribute("hidden", "");
+    document.querySelector("#qrPlaceholder")?.removeAttribute("hidden");
+    document.querySelector("#qrResultMeta")?.setAttribute("hidden", "");
+    setQrDownloadState(false);
+    appState.qrSvg = "";
+    appState.barcodeSvg = "";
+    appState.qrLogoDataUrl = "";
+    setText("#qrLogoName", "");
+  });
+  ["qrForeground", "qrBackground"].forEach((id) => document.querySelector(`#${id}`)?.addEventListener("input", (event) => setText(`#${id}Value`, event.target.value)));
+  document.querySelector("#qrLogoInput")?.addEventListener("change", handleQrLogo);
+  document.querySelector("#qrLogoSize")?.addEventListener("input", (event) => {
+    appState.qrLogoSize = Number(event.target.value);
+    setText("#qrLogoSizeValue", `${appState.qrLogoSize}%`);
+  });
+  document.querySelector("#qrPrintPreset")?.addEventListener("change", (event) => {
+    appState.qrPrintPreset = event.target.value;
+  });
+  document.querySelector("#downloadPng")?.addEventListener("click", downloadSmartPng);
+  document.querySelector("#downloadSvg")?.addEventListener("click", downloadSmartSvg);
+  document.querySelector("#downloadQrPdf")?.addEventListener("click", downloadSmartPdf);
+}
+
+async function generateSmartQr(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  if (!form.reportValidity()) return;
+  const values = Object.fromEntries(new FormData(form).entries());
+  values.hidden = Boolean(form.querySelector('[name="hidden"]')?.checked);
+  if (!validateSmartQr(values)) {
+    showToast(t("invalidQr"), true);
+    return;
+  }
+  if (appState.qrType === "barcode") {
+    generateBarcode(values);
+    return;
+  }
+  const content = buildSmartQrContent(values);
+  const canvas = document.querySelector("#qrCanvas");
+  const options = {
+    width: 760,
+    margin: 3,
+    errorCorrectionLevel: "H",
+    color: {
+      dark: document.querySelector("#qrForeground")?.value || "#153232",
+      light: document.querySelector("#qrBackground")?.value || "#ffffff",
+    },
+  };
+  try {
+    await QRCode.toCanvas(canvas, content, options);
+    let svg = await QRCode.toString(content, { ...options, type: "svg" });
+    if (appState.qrLogoDataUrl) {
+      await drawLogoOnCanvas(canvas);
+      svg = addLogoToQrSvg(svg, appState.qrLogoDataUrl, appState.qrLogoSize);
+    }
+    appState.qrSvg = svg;
+    appState.generatedKind = "qr";
+    canvas.hidden = false;
+    document.querySelector("#barcodeSvg")?.setAttribute("hidden", "");
+    document.querySelector("#qrPlaceholder").hidden = true;
+    document.querySelector("#qrResultMeta")?.removeAttribute("hidden");
+    setText("#qrResultValue", content.length > 90 ? `${content.slice(0, 87)}…` : content);
+    setQrDownloadState(true);
+    showToast(t("qrGenerated"));
+  } catch (error) {
+    console.error(error);
+    showToast(t("invalidQr"), true);
+  }
+}
+
+function buildSmartQrContent(values) {
+  const wifiEscape = (value = "") => String(value).replace(/([\\;,":])/g, "\\$1");
+  switch (appState.qrType) {
+    case "url": return normalizeSmartUrl(values.url);
+    case "phone": return `tel:${values.phone.replace(/\s+/g, "")}`;
+    case "email": return `mailto:${values.email}`;
+    case "text": return values.text;
+    case "whatsapp": return `https://wa.me/${values.phone.replace(/\D/g, "")}${values.message ? `?text=${encodeURIComponent(values.message)}` : ""}`;
+    case "wifi": return `WIFI:T:${values.encryption};S:${wifiEscape(values.ssid)};P:${wifiEscape(values.password)};H:${values.hidden ? "true" : "false"};;`;
+    case "vcard": return `BEGIN:VCARD\nVERSION:3.0\nFN:${values.name}\nORG:${values.organization || ""}\nTEL:${values.phone}\nEMAIL:${values.email || ""}\nURL:${values.url || ""}\nADR:;;${values.address || ""};;;;\nEND:VCARD`;
+    case "maps": return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(values.place)}`;
+    case "menu": return normalizeSmartUrl(values.url);
+    case "paypal": return `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(values.email)}&currency_code=${values.currency}${values.amount ? `&amount=${encodeURIComponent(values.amount)}` : ""}`;
+    case "iban": return `BCD\n002\n1\nSCT\n${values.bic || ""}\n${values.recipient}\n${values.iban.replace(/\s/g, "").toUpperCase()}\nEUR${Number(values.amount).toFixed(2)}\n\n\n${values.reason || ""}`;
+    case "sms": return `SMSTO:${values.phone.replace(/\s/g, "")}:${values.message}`;
+    case "event": return `BEGIN:VEVENT\nSUMMARY:${values.title}\nDTSTART:${toCalendarDate(values.start)}\nDTEND:${toCalendarDate(values.end)}\nLOCATION:${values.location || ""}\nDESCRIPTION:${values.description || ""}\nEND:VEVENT`;
+    case "social": return normalizeSmartUrl(values.url);
+    default: return values.url || values.text || "";
+  }
+}
+
+function validateSmartQr(values) {
+  if (["url", "menu", "social"].includes(appState.qrType)) {
+    try { return ["http:", "https:"].includes(new URL(normalizeSmartUrl(values.url)).protocol); } catch { return false; }
+  }
+  if (["email", "paypal"].includes(appState.qrType)) return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email);
+  if (["phone", "whatsapp", "sms"].includes(appState.qrType)) return String(values.phone || "").replace(/\D/g, "").length >= 7;
+  if (appState.qrType === "iban") return /^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(String(values.iban || "").replace(/\s/g, "").toUpperCase()) && Number(values.amount) > 0;
+  if (appState.qrType === "event") return Boolean(values.title && values.start && values.end && new Date(values.end) > new Date(values.start));
+  if (appState.qrType === "barcode") return validateBarcode(values.format, values.value);
+  return Object.values(values).some((value) => String(value).trim());
+}
+
+function setQrDownloadState(enabled) {
+  ["downloadPng", "downloadSvg", "downloadQrPdf"].forEach((id) => {
+    const button = document.querySelector(`#${id}`);
+    if (button) button.disabled = !enabled;
+  });
+}
+
+function toCalendarDate(value) {
+  return new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+}
+
+function validateBarcode(format, value) {
+  if (format === "EAN13") return /^\d{12,13}$/.test(value);
+  if (format === "EAN8") return /^\d{7,8}$/.test(value);
+  if (format === "UPC") return /^\d{11,12}$/.test(value);
+  return Boolean(value && value.length <= 80);
+}
+
+function generateBarcode(values) {
+  const svg = document.querySelector("#barcodeSvg");
+  const canvas = document.querySelector("#qrCanvas");
+  try {
+    const options = { format: values.format, displayValue: true, margin: 18, height: 120, background: "#ffffff", lineColor: "#153232" };
+    JsBarcode(svg, values.value, options);
+    JsBarcode(canvas, values.value, options);
+    appState.barcodeSvg = new XMLSerializer().serializeToString(svg);
+    appState.generatedKind = "barcode";
+    svg.hidden = false;
+    canvas.hidden = true;
+    document.querySelector("#qrPlaceholder").hidden = true;
+    document.querySelector("#qrResultMeta")?.removeAttribute("hidden");
+    setText("#qrResultValue", `${values.format}: ${values.value}`);
+    setQrDownloadState(true);
+    showToast(t("qrGenerated"));
+  } catch {
+    showToast(t("invalidQr"), true);
+  }
+}
+
+function handleQrLogo(event) {
+  const file = event.target.files?.[0];
+  if (!file || !["image/png", "image/jpeg", "image/svg+xml"].includes(file.type) || file.size > 2 * 1024 * 1024) {
+    if (file) showToast(t("invalidQr"), true);
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    appState.qrLogoDataUrl = String(reader.result);
+    setText("#qrLogoName", file.name);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function drawLogoOnCanvas(canvas) {
+  const image = new Image();
+  image.src = appState.qrLogoDataUrl;
+  await image.decode();
+  const context = canvas.getContext("2d");
+  const size = canvas.width * (appState.qrLogoSize / 100);
+  const padding = size * 0.16;
+  const x = (canvas.width - size) / 2;
+  const y = (canvas.height - size) / 2;
+  context.fillStyle = "#ffffff";
+  context.fillRect(x - padding, y - padding, size + padding * 2, size + padding * 2);
+  context.drawImage(image, x, y, size, size);
+}
+
+function addLogoToQrSvg(svg, logo, percent) {
+  const match = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+  if (!match) return svg;
+  const width = Number(match[1]);
+  const size = width * (percent / 100);
+  const padding = size * 0.16;
+  const position = (width - size) / 2;
+  const overlay = `<rect x="${position - padding}" y="${position - padding}" width="${size + padding * 2}" height="${size + padding * 2}" rx="${padding}" fill="#fff"/><image href="${logo}" x="${position}" y="${position}" width="${size}" height="${size}" preserveAspectRatio="xMidYMid meet"/>`;
+  return svg.replace("</svg>", `${overlay}</svg>`);
+}
+
+function downloadSmartPng() {
+  const canvas = document.querySelector("#qrCanvas");
+  if (!canvas) return;
+  canvas.toBlob((blob) => blob && downloadBlob(blob, `${appState.generatedKind}-code.png`), "image/png");
+}
+
+function downloadSmartSvg() {
+  const svg = appState.generatedKind === "barcode" ? appState.barcodeSvg : appState.qrSvg;
+  if (svg) downloadBlob(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }), `${appState.generatedKind}-code.svg`);
+}
+
+async function downloadSmartPdf() {
+  const canvas = document.querySelector("#qrCanvas");
+  if (!canvas || (!appState.qrSvg && !appState.barcodeSvg)) return;
+  try {
+    await ensurePdfLibraries();
+    const pdf = await PDFDocument.create();
+    const png = await pdf.embedPng(canvas.toDataURL("image/png"));
+    addPrintPages(pdf, png, appState.qrPrintPreset, appState.generatedKind === "barcode");
+    downloadBlob(new Blob([await pdf.save()], { type: "application/pdf" }), `${appState.generatedKind}-${appState.qrPrintPreset}.pdf`);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function addPrintPages(pdf, image, preset, isBarcode) {
+  const mm = 72 / 25.4;
+  if (preset === "a4") {
+    const page = pdf.addPage([210 * mm, 297 * mm]);
+    const size = isBarcode ? [55 * mm, 25 * mm] : [35 * mm, 35 * mm];
+    for (let y = 18 * mm; y + size[1] < 285 * mm; y += size[1] + 10 * mm) {
+      for (let x = 15 * mm; x + size[0] < 200 * mm; x += size[0] + 10 * mm) page.drawImage(image, { x, y, width: size[0], height: size[1] });
+    }
+    return;
+  }
+  const formats = { "3cm": [30, 30], "5cm": [50, 50], "10cm": [100, 100], business: [85, 55], table: [105, 148] };
+  const [widthMm, heightMm] = formats[preset] || formats["5cm"];
+  const page = pdf.addPage([widthMm * mm, heightMm * mm]);
+  const padding = Math.min(widthMm, heightMm) * 0.1 * mm;
+  const maxWidth = widthMm * mm - padding * 2;
+  const maxHeight = heightMm * mm - padding * 2;
+  const ratio = image.width / image.height;
+  const drawWidth = isBarcode ? maxWidth : Math.min(maxWidth, maxHeight);
+  const drawHeight = isBarcode ? Math.min(maxHeight, drawWidth / ratio) : drawWidth;
+  page.drawImage(image, { x: (widthMm * mm - drawWidth) / 2, y: (heightMm * mm - drawHeight) / 2, width: drawWidth, height: drawHeight });
+}
+
 function bindImageQrEvents() {
   const input = document.querySelector("#imageQrInput");
   const dropZone = document.querySelector("#imageDropZone");
@@ -3087,13 +3517,14 @@ async function loadViewImage() {
   }
 }
 
-function renderPublicImage(data, imageUrl = data.imageUrl) {
+function renderPublicImage(data, imageUrl = data.imageUrl, downloadUrl = data.downloadUrl) {
   const expires = data.expiresAt ? new Intl.DateTimeFormat(appState.lang, { dateStyle: "medium", timeStyle: "short" }).format(new Date(data.expiresAt)) : "";
   return `
     <div class="view-image-content">
       ${data.title ? `<h1>${escapeHtml(data.title)}</h1>` : ""}
       ${data.description ? `<p>${escapeHtml(data.description)}</p>` : ""}
       <img src="${escapeHtml(imageUrl || "")}" alt="${escapeHtml(data.title || "Shared image")}">
+      ${downloadUrl ? `<a class="button primary view-image-download" href="${escapeHtml(downloadUrl)}" download>${icon("download", 18)} ${t("downloadImage")}</a>` : ""}
       ${expires ? `<small>${t("expiresLabel")}: ${escapeHtml(expires)}</small>` : ""}
     </div>
   `;
@@ -3110,7 +3541,7 @@ async function unlockViewImage(event, data) {
     const result = await response.json().catch(() => ({}));
     if (!response.ok || !result.imageUrl) throw new Error(result.error || "Unauthorized");
     document.querySelector("#protectedImageBox")?.remove();
-    document.querySelector("#unlockedImage").innerHTML = renderPublicImage(data, result.imageUrl);
+    document.querySelector("#unlockedImage").innerHTML = renderPublicImage(data, result.imageUrl, result.downloadUrl);
   } catch {
     showToast(t("imageUnavailable"), true);
   }

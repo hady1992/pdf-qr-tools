@@ -3048,6 +3048,214 @@ body.editor-loaded-mode .editor-statusbar {
   color: var(--muted);
 }
 
+.view-image-download {
+  width: fit-content;
+  margin: 0 auto 16px;
+}
+
+/* Smart QR Tools */
+.smart-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(96px, 1fr));
+  gap: 8px;
+  max-height: 250px;
+  margin-bottom: 24px;
+  padding: 7px;
+  overflow-y: auto;
+  background: var(--surface-2);
+  border-radius: 16px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.smart-qr-page .qr-layout,
+.smart-qr-page .qr-form-card,
+.smart-qr-page .qr-preview-card {
+  min-width: 0;
+}
+
+.smart-tools-grid .qr-tab {
+  min-height: 58px;
+  padding: 8px 6px;
+  border: 1px solid transparent;
+}
+
+.smart-tools-grid .qr-tab.active {
+  color: var(--brand-dark);
+  border-color: #cde3dc;
+}
+
+.smart-tool-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  color: var(--brand-dark);
+}
+
+.smart-tool-heading h2 {
+  font-size: 1.2rem;
+}
+
+.smart-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.smart-form-grid .field.full,
+.smart-form-grid .field-help.full {
+  grid-column: 1 / -1;
+}
+
+.smart-form-grid .field {
+  margin: 0;
+}
+
+.smart-form-grid .qr-main-input {
+  margin-bottom: 0;
+}
+
+.check-field {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 50px;
+  padding: 12px;
+  font-size: 0.85rem;
+  font-weight: 720;
+}
+
+.logo-controls {
+  margin: 20px 0;
+  padding: 16px;
+  background: #f7faf8;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+}
+
+.logo-controls[hidden],
+.color-grid[hidden] {
+  display: none;
+}
+
+.logo-control-head,
+.logo-control-row,
+.range-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.logo-control-head {
+  margin-bottom: 13px;
+}
+
+.logo-control-head small,
+#qrLogoName {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logo-control-row {
+  justify-content: flex-start;
+  margin-bottom: 13px;
+}
+
+.range-label {
+  margin-bottom: 7px;
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.logo-controls input[type="range"] {
+  width: 100%;
+}
+
+.logo-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 10px;
+  color: #91601b;
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+.barcode-preview {
+  width: calc(100% - 24px);
+  max-height: 240px;
+  background: white;
+}
+
+.print-preset {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 12px;
+  text-align: start;
+}
+
+.print-preset label {
+  font-size: 0.77rem;
+  font-weight: 780;
+}
+
+.print-preset select {
+  min-height: 43px;
+  padding: 8px 10px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+}
+
+.download-row.three {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.qr-help-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding-bottom: 85px;
+}
+
+.qr-help-grid article,
+.qr-help-grid details {
+  padding: 22px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.qr-help-grid article > svg {
+  color: var(--brand);
+}
+
+.qr-help-grid h3 {
+  margin: 12px 0 8px;
+  font-size: 1rem;
+}
+
+.qr-help-grid p {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.qr-help-grid details {
+  grid-column: 1 / -1;
+}
+
+.qr-help-grid summary {
+  cursor: pointer;
+  font-weight: 800;
+}
+
 @media (max-width: 1000px) {
   .image-qr-layout {
     grid-template-columns: 1fr;
@@ -3055,6 +3263,22 @@ body.editor-loaded-mode .editor-statusbar {
 
   .image-qr-result {
     position: static;
+  }
+
+  .smart-tools-grid {
+    grid-template-columns: repeat(4, minmax(100px, 1fr));
+  }
+
+  .smart-qr-page .qr-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .qr-help-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .qr-help-grid details {
+    grid-column: auto;
   }
 }
 
@@ -3069,5 +3293,37 @@ body.editor-loaded-mode .editor-statusbar {
 
   .image-download-row {
     grid-template-columns: 1fr;
+  }
+
+  .smart-tools-grid {
+    display: flex;
+    width: 100%;
+    max-height: none;
+    margin-inline: -8px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+
+  .smart-tools-grid .qr-tab {
+    flex: 0 0 118px;
+    scroll-snap-align: start;
+  }
+
+  .smart-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .smart-form-grid .field.full,
+  .smart-form-grid .field-help.full {
+    grid-column: auto;
+  }
+
+  .download-row.three {
+    grid-template-columns: 1fr;
+  }
+
+  .logo-control-row {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

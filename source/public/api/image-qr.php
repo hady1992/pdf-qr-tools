@@ -14,11 +14,13 @@ const ALLOWED_MIMES = [
 ];
 
 $root = dirname(__DIR__);
-$storageDir = $root . '/storage';
+$legacyStorageDir = $root . '/storage';
+$storageDir = chooseStorageDirectory($root, $legacyStorageDir);
 $imageDir = $storageDir . '/images';
 
 try {
     ensureStorage($storageDir, $imageDir);
+    migrateLegacyStorage($legacyStorageDir, $storageDir);
     $db = database($storageDir . '/image-qr.sqlite');
     cleanupExpired($db, $imageDir);
 
@@ -43,6 +45,39 @@ function ensureStorage(string $storageDir, string $imageDir): void {
     foreach ([$storageDir, $imageDir] as $dir) {
         if (!is_dir($dir) && !mkdir($dir, 0750, true) && !is_dir($dir)) {
             throw new RuntimeException('Cannot create storage directory.');
+        }
+    }
+}
+
+function chooseStorageDirectory(string $root, string $fallback): string {
+    $configured = trim((string)getenv('IMAGE_QR_STORAGE_PATH'));
+    if ($configured !== '') {
+        return rtrim($configured, '/\\');
+    }
+    $persistent = dirname($root) . '/pdfqr-storage';
+    if ((is_dir($persistent) || @mkdir($persistent, 0750, true)) && is_writable($persistent)) {
+        return $persistent;
+    }
+    return $fallback;
+}
+
+function migrateLegacyStorage(string $legacy, string $target): void {
+    if ($legacy === $target || !is_dir($legacy)) {
+        return;
+    }
+    $legacyDb = $legacy . '/image-qr.sqlite';
+    $targetDb = $target . '/image-qr.sqlite';
+    if (is_file($legacyDb) && !is_file($targetDb)) {
+        @copy($legacyDb, $targetDb);
+    }
+    $legacyImages = $legacy . '/images';
+    $targetImages = $target . '/images';
+    if (is_dir($legacyImages)) {
+        foreach (glob($legacyImages . '/*.{jpg,jpeg,png,webp}', GLOB_BRACE) ?: [] as $file) {
+            $destination = $targetImages . '/' . basename($file);
+            if (!is_file($destination)) {
+                @copy($file, $destination);
+            }
         }
     }
 }
@@ -155,6 +190,7 @@ function getImageMetadata(PDO $db): never {
         'createdAt' => $row['createdAt'],
         'protected' => $row['passwordHash'] !== null,
         'imageUrl' => $row['passwordHash'] === null ? '/api/image-qr.php?action=image&id=' . $row['id'] : null,
+        'downloadUrl' => $row['passwordHash'] === null ? '/api/image-qr.php?action=image&download=1&id=' . $row['id'] : null,
     ]);
 }
 
@@ -162,7 +198,10 @@ function unlockImage(PDO $db): never {
     $id = validId($_POST['id'] ?? '');
     $row = findImage($db, $id);
     if ($row['passwordHash'] === null) {
-        respond(['imageUrl' => '/api/image-qr.php?action=image&id=' . $id]);
+        respond([
+            'imageUrl' => '/api/image-qr.php?action=image&id=' . $id,
+            'downloadUrl' => '/api/image-qr.php?action=image&download=1&id=' . $id,
+        ]);
     }
     $password = (string)($_POST['password'] ?? '');
     if (!password_verify($password, $row['passwordHash'])) {
@@ -170,7 +209,8 @@ function unlockImage(PDO $db): never {
     }
     $expires = time() + TOKEN_TTL;
     $token = signToken($id, $expires);
-    respond(['imageUrl' => '/api/image-qr.php?action=image&id=' . $id . '&expires=' . $expires . '&token=' . rawurlencode($token)]);
+    $securedUrl = '/api/image-qr.php?action=image&id=' . $id . '&expires=' . $expires . '&token=' . rawurlencode($token);
+    respond(['imageUrl' => $securedUrl, 'downloadUrl' => $securedUrl . '&download=1']);
 }
 
 function streamImage(PDO $db, string $imageDir): never {
@@ -190,7 +230,8 @@ function streamImage(PDO $db, string $imageDir): never {
     header_remove('Content-Type');
     header('Content-Type: ' . $row['mimeType']);
     header('Content-Length: ' . filesize($path));
-    header('Content-Disposition: inline; filename="image.' . ALLOWED_MIMES[$row['mimeType']] . '"');
+    $disposition = isset($_GET['download']) && $_GET['download'] === '1' ? 'attachment' : 'inline';
+    header('Content-Disposition: ' . $disposition . '; filename="shared-image-' . $id . '.' . ALLOWED_MIMES[$row['mimeType']] . '"');
     header('Cache-Control: private, max-age=300');
     readfile($path);
     exit;
