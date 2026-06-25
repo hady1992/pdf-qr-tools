@@ -1,0 +1,17 @@
+node_modules/
+dist/
+output/
+tmp/
+
+public/storage/*.sqlite
+public/storage/*.sqlite-*
+public/storage/.token-secret
+public/storage/images/*
+!public/storage/images/.gitkeep
+
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db
