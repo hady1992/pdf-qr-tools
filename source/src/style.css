@@ -1898,6 +1898,9 @@ textarea.qr-main-input {
   position: sticky;
   top: 98px;
   align-self: start;
+  max-height: calc(100dvh - 116px);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
   padding: 27px;
   text-align: center;
 }
@@ -1930,7 +1933,8 @@ textarea.qr-main-input {
   border-radius: 19px;
 }
 
-.qr-canvas-wrap canvas {
+.qr-canvas-wrap canvas,
+.qr-preview-image {
   display: block;
   width: 100% !important;
   height: 100% !important;
@@ -1939,6 +1943,15 @@ textarea.qr-main-input {
   object-fit: contain;
   background: #fff;
   border-radius: 8px;
+}
+
+.qr-preview-image[hidden] {
+  display: none !important;
+}
+
+.qr-canvas-wrap canvas[hidden],
+.qr-canvas-wrap svg[hidden] {
+  display: none !important;
 }
 
 .qr-placeholder {
