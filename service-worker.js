@@ -1,4 +1,4 @@
-const CACHE_NAME = "pdf-qr-tools-v3";
+const CACHE_NAME = "pdf-qr-tools-v4-tools";
 const APP_SHELL = [
   "/",
   "/index.html",

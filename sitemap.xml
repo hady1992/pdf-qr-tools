@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>/</loc></url>
+  <url><loc>/editor</loc></url>
+  <url><loc>/tools</loc></url>
+  <url><loc>/compress-pdf</loc></url>
+  <url><loc>/images-to-pdf</loc></url>
+  <url><loc>/pdf-to-images</loc></url>
+  <url><loc>/sign-pdf</loc></url>
+  <url><loc>/rotate-pdf</loc></url>
+  <url><loc>/page-numbers</loc></url>
+  <url><loc>/watermark-pdf</loc></url>
+  <url><loc>/redact-pdf</loc></url>
+  <url><loc>/crop-pdf</loc></url>
+  <url><loc>/protect-pdf</loc></url>
+  <url><loc>/reorder-pages</loc></url>
+  <url><loc>/prepare-submission</loc></url>
+  <url><loc>/qr</loc></url>
+  <url><loc>/image-qr-code</loc></url>
+  <url><loc>/privacy</loc></url>
+  <url><loc>/contact</loc></url>
+</urlset>
