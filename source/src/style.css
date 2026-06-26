@@ -1909,11 +1909,12 @@ textarea.qr-main-input {
 
 .qr-canvas-wrap {
   display: grid;
-  width: min(310px, 100%);
+  width: min(292px, 100%);
   aspect-ratio: 1;
   margin: 0 auto 20px;
+  padding: 16px;
   place-items: center;
-  overflow: hidden;
+  overflow: visible;
   background:
     linear-gradient(45deg, #edf0ee 25%, transparent 25%),
     linear-gradient(-45deg, #edf0ee 25%, transparent 25%),
@@ -1930,8 +1931,13 @@ textarea.qr-main-input {
 }
 
 .qr-canvas-wrap canvas {
-  width: calc(100% - 34px) !important;
-  height: auto !important;
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  background: #fff;
   border-radius: 8px;
 }
 
