@@ -3,15 +3,42 @@
   "short_name": "PDF QR",
   "description": "Edit PDF files and create QR codes securely in your browser.",
   "start_url": "./#/home",
+  "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "any",
+  "dir": "auto",
+  "lang": "ar",
+  "categories": ["productivity", "utilities", "business"],
   "background_color": "#fbfcf8",
   "theme_color": "#102b2c",
+  "id": "/",
   "icons": [
     {
       "src": "./favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any"
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "PDF Editor",
+      "short_name": "PDF",
+      "url": "./#/editor",
+      "description": "Edit PDF files in your browser."
+    },
+    {
+      "name": "Smart QR Tools",
+      "short_name": "QR",
+      "url": "./#/qr",
+      "description": "Create QR codes and barcodes."
+    },
+    {
+      "name": "Image QR Code",
+      "short_name": "Image QR",
+      "url": "./#/image-qr-code",
+      "description": "Upload an image and create a QR link."
     }
   ]
 }

@@ -731,6 +731,7 @@ const iconPaths = {
   maximize: '<path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/>',
   check: '<path d="m20 6-11 11-5-5"/>',
   sparkle: '<path d="m12 3-1.9 4.6L5.5 9.5l4.6 1.9L12 16l1.9-4.6 4.6-1.9-4.6-1.9z"/><path d="M5 3v4M3 5h4M19 17v4M17 19h4"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
 };
 
 function icon(name, size = 20, stroke = 2) {
@@ -816,9 +817,10 @@ Object.assign(runtimeTranslations.ar, {
   optionalTitle: "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0635\u0648\u0631\u0629 (\u0627\u062e\u062a\u064a\u0627\u0631\u064a)",
   optionalDescription: "\u0648\u0635\u0641 (\u0627\u062e\u062a\u064a\u0627\u0631\u064a)",
   expiry: "\u062d\u0630\u0641 \u0627\u0644\u0635\u0648\u0631\u0629 \u0628\u0639\u062f",
+  oneDay: "\u064a\u0648\u0645 \u0648\u0627\u062d\u062f",
   sevenDays: "7 \u0623\u064a\u0627\u0645",
-  thirtyDays: "30 \u064a\u0648\u0645\u064b\u0627",
-  noExpiry: "\u0628\u062f\u0648\u0646 \u062a\u0627\u0631\u064a\u062e \u0627\u0646\u062a\u0647\u0627\u0621",
+  fifteenDays: "15 \u064a\u0648\u0645\u064b\u0627",
+  retentionLimitNotice: "\u064a\u062a\u0645 \u062d\u0630\u0641 \u0627\u0644\u0635\u0648\u0631 \u062a\u0644\u0642\u0627\u0626\u064a\u064b\u0627 \u0628\u0639\u062f \u0627\u0646\u062a\u0647\u0627\u0621 \u0645\u062f\u0629 \u0627\u0644\u0627\u062d\u062a\u0641\u0627\u0638\u060c \u0648\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0642\u0635\u0649 \u0647\u0648 15 \u064a\u0648\u0645\u064b\u0627.",
   protectPassword: "\u062d\u0645\u0627\u064a\u0629 \u0628\u0643\u0644\u0645\u0629 \u0645\u0631\u0648\u0631 (\u0627\u062e\u062a\u064a\u0627\u0631\u064a)",
   createImageQr: "\u0631\u0641\u0639 \u0627\u0644\u0635\u0648\u0631\u0629 \u0648\u0625\u0646\u0634\u0627\u0621 QR",
   uploadingImage: "\u062c\u0627\u0631\u064a \u0631\u0641\u0639 \u0627\u0644\u0635\u0648\u0631\u0629 \u0628\u0623\u0645\u0627\u0646\u2026",
@@ -831,8 +833,10 @@ Object.assign(runtimeTranslations.ar, {
   faqTitle: "\u0623\u0633\u0626\u0644\u0629 \u0634\u0627\u0626\u0639\u0629",
   faq1q: "\u0647\u0644 \u0627\u0644\u0635\u0648\u0631\u0629 \u0645\u0648\u062c\u0648\u062f\u0629 \u062f\u0627\u062e\u0644 QR Code\u061f",
   faq1a: "\u0644\u0627. \u0627\u0644\u0643\u0648\u062f \u064a\u062d\u0645\u0644 \u0631\u0627\u0628\u0637\u064b\u0627 \u0641\u0642\u0637\u060c \u0648\u0647\u0630\u0627 \u064a\u062d\u0627\u0641\u0638 \u0639\u0644\u0649 \u062c\u0648\u062f\u0629 \u0627\u0644\u0645\u0633\u062d \u0648\u064a\u0633\u0645\u062d \u0628\u062d\u0645\u0627\u064a\u0629 \u0627\u0644\u0635\u0648\u0631\u0629.",
-  faq2q: "\u0645\u0627\u0630\u0627 \u064a\u062d\u062f\u062b \u0628\u0639\u062f \u0627\u0646\u062a\u0647\u0627\u0621 \u0627\u0644\u0645\u062f\u0629\u061f",
-  faq2a: "\u062a\u064f\u062d\u0630\u0641 \u0627\u0644\u0635\u0648\u0631\u0629 \u0648\u0628\u064a\u0627\u0646\u0627\u062a\u0647\u0627 \u062a\u0644\u0642\u0627\u0626\u064a\u064b\u0627\u060c \u0648\u064a\u062a\u0648\u0642\u0641 \u0627\u0644\u0631\u0627\u0628\u0637 \u0639\u0646 \u0627\u0644\u0639\u0645\u0644.",
+  faq2q: "\u0645\u0627 \u0645\u062f\u0629 \u0627\u0644\u0627\u062d\u062a\u0641\u0627\u0638 \u0628\u0627\u0644\u0635\u0648\u0631\u0629\u061f",
+  faq2a: "\u064a\u0645\u0643\u0646 \u0627\u062e\u062a\u064a\u0627\u0631 \u064a\u0648\u0645 \u0648\u0627\u062d\u062f \u0623\u0648 7 \u0623\u064a\u0627\u0645 \u0623\u0648 15 \u064a\u0648\u0645\u064b\u0627\u060c \u0648\u0628\u0639\u062f\u0647\u0627 \u064a\u062a\u0645 \u062d\u0630\u0641 \u0627\u0644\u0635\u0648\u0631\u0629 \u062a\u0644\u0642\u0627\u0626\u064a\u064b\u0627.",
+  faq4q: "\u0647\u0644 \u064a\u0645\u0643\u0646 \u0627\u0644\u0627\u062d\u062a\u0641\u0627\u0638 \u0628\u0627\u0644\u0635\u0648\u0631\u0629 \u0644\u0644\u0623\u0628\u062f\u061f",
+  faq4a: "\u0644\u0627\u060c \u0644\u062d\u0645\u0627\u064a\u0629 \u0627\u0644\u062e\u0635\u0648\u0635\u064a\u0629 \u0648\u062a\u0648\u0641\u064a\u0631 \u0645\u0633\u0627\u062d\u0629 \u0627\u0644\u062a\u062e\u0632\u064a\u0646\u060c \u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0642\u0635\u0649 \u0647\u0648 15 \u064a\u0648\u0645\u064b\u0627.",
   faq3q: "\u0643\u064a\u0641 \u062a\u0639\u0645\u0644 \u0627\u0644\u062d\u0645\u0627\u064a\u0629 \u0628\u0643\u0644\u0645\u0629 \u0645\u0631\u0648\u0631\u061f",
   faq3a: "\u064a\u0637\u0644\u0628 \u0631\u0627\u0628\u0637 \u0627\u0644\u0635\u0648\u0631\u0629 \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631 \u0642\u0628\u0644 \u0625\u0638\u0647\u0627\u0631\u0647\u0627\u060c \u0648\u0646\u062d\u0641\u0638 \u0646\u0633\u062e\u0629 \u0645\u0634\u0641\u0631\u0629 \u0645\u0646\u0647\u0627 \u0641\u0642\u0637.",
   imageProtected: "\u0647\u0630\u0647 \u0627\u0644\u0635\u0648\u0631\u0629 \u0645\u062d\u0645\u064a\u0629",
@@ -905,12 +909,15 @@ Object.assign(runtimeTranslations.de, {
   imageQrExplanation: "Der QR-Code enth\u00e4lt nicht das Bild selbst, sondern einen Link zur Bildseite.",
   dropImage: "Bild hier ablegen", chooseImage: "oder vom Ger\u00e4t ausw\u00e4hlen", imageRules: "JPG, PNG oder WebP \u2014 maximal 5 MB",
   optionalTitle: "Bildtitel (optional)", optionalDescription: "Beschreibung (optional)", expiry: "Bild l\u00f6schen nach",
-  sevenDays: "7 Tagen", thirtyDays: "30 Tagen", noExpiry: "Kein Ablaufdatum", protectPassword: "Passwortschutz (optional)",
+  oneDay: "1 Tag", sevenDays: "7 Tagen", fifteenDays: "15 Tagen",
+  retentionLimitNotice: "Bilder werden nach Ablauf der gew\u00e4hlten Aufbewahrungsdauer automatisch gel\u00f6scht. Das Maximum betr\u00e4gt 15 Tage.",
+  protectPassword: "Passwortschutz (optional)",
   createImageQr: "Bild hochladen & QR erstellen", uploadingImage: "Bild wird sicher hochgeladen\u2026", imageQrReady: "Link und QR-Code sind fertig",
   copyLink: "Link kopieren", downloadPdf: "PDF herunterladen", privacyImageNotice: "Das Bild wird nur f\u00fcr den Link gespeichert und nach Ablauf automatisch gel\u00f6scht. Keine hochsensiblen Bilder hochladen.",
   imageInvalid: "Bitte JPG, PNG oder WebP unter 5 MB ausw\u00e4hlen.", uploadFailed: "Upload fehlgeschlagen. Bitte PHP und SQLite auf dem Hosting pr\u00fcfen.",
   faqTitle: "H\u00e4ufige Fragen", faq1q: "Ist das Bild im QR-Code gespeichert?", faq1a: "Nein. Der QR-Code enth\u00e4lt nur den Link zur gesch\u00fctzten Bildseite.",
-  faq2q: "Was passiert nach Ablauf?", faq2a: "Bild und Daten werden automatisch gel\u00f6scht und der Link funktioniert nicht mehr.",
+  faq2q: "Wie lange wird das Bild gespeichert?", faq2a: "Du kannst 1 Tag, 7 Tage oder 15 Tage w\u00e4hlen. Danach wird das Bild automatisch gel\u00f6scht.",
+  faq4q: "Kann das Bild dauerhaft gespeichert werden?", faq4a: "Nein. Zum Schutz der Privatsph\u00e4re und des Speicherplatzes betr\u00e4gt das Maximum 15 Tage.",
   faq3q: "Wie funktioniert der Passwortschutz?", faq3a: "Vor der Anzeige wird das Passwort verlangt. Gespeichert wird nur ein sicherer Passwort-Hash.",
   imageProtected: "Dieses Bild ist gesch\u00fctzt", enterImagePassword: "Passwort eingeben, um das Bild zu sehen", openImage: "Bild anzeigen",
   imageUnavailable: "Das Bild ist nicht verf\u00fcgbar oder abgelaufen.", expiresLabel: "L\u00e4uft ab am",
@@ -938,12 +945,15 @@ Object.assign(runtimeTranslations.en, {
   imageQrExplanation: "The QR code does not contain the image itself. It contains a link that opens the image page.",
   dropImage: "Drop your image here", chooseImage: "or choose one from your device", imageRules: "JPG, PNG or WebP \u2014 maximum 5 MB",
   optionalTitle: "Image title (optional)", optionalDescription: "Description (optional)", expiry: "Delete image after",
-  sevenDays: "7 days", thirtyDays: "30 days", noExpiry: "No expiration", protectPassword: "Password protection (optional)",
+  oneDay: "1 day", sevenDays: "7 days", fifteenDays: "15 days",
+  retentionLimitNotice: "Images are deleted automatically after the selected retention period. The maximum is 15 days.",
+  protectPassword: "Password protection (optional)",
   createImageQr: "Upload image & create QR", uploadingImage: "Uploading image securely\u2026", imageQrReady: "Your link and QR code are ready",
   copyLink: "Copy link", downloadPdf: "Download PDF", privacyImageNotice: "The image is stored only to power its link and is deleted automatically after expiry. Do not upload highly sensitive images.",
   imageInvalid: "Choose a JPG, PNG or WebP image under 5 MB.", uploadFailed: "Upload failed. Make sure PHP and SQLite are enabled on your hosting.",
   faqTitle: "Frequently asked questions", faq1q: "Is the image stored inside the QR code?", faq1a: "No. The QR code contains only a link to the image page.",
-  faq2q: "What happens after expiration?", faq2a: "The image and its data are automatically deleted and the link stops working.",
+  faq2q: "How long is the image kept?", faq2a: "You can choose 1 day, 7 days, or 15 days. After that, the image is deleted automatically.",
+  faq4q: "Can the image be kept forever?", faq4a: "No. To protect privacy and save storage space, the maximum retention period is 15 days.",
   faq3q: "How does password protection work?", faq3a: "The viewer must enter the password before the image is shown. Only a secure password hash is stored.",
   imageProtected: "This image is protected", enterImagePassword: "Enter the password to view the image", openImage: "View image",
   imageUnavailable: "The image is unavailable or has expired.", expiresLabel: "Expires on",
@@ -1608,10 +1618,11 @@ function imageQrTemplate() {
               <div class="field"><label for="imageTitle">${t("optionalTitle")}</label><input id="imageTitle" maxlength="120" type="text"></div>
               <div class="field"><label for="imageDescription">${t("optionalDescription")}</label><textarea id="imageDescription" maxlength="1000"></textarea></div>
               <div class="field"><label for="imageExpiry">${t("expiry")}</label>
-                <select id="imageExpiry"><option value="7">${t("sevenDays")}</option><option value="30">${t("thirtyDays")}</option><option value="0">${t("noExpiry")}</option></select>
+                <select id="imageExpiry"><option value="1">${t("oneDay")}</option><option value="7" selected>${t("sevenDays")}</option><option value="15">${t("fifteenDays")}</option></select>
               </div>
               <div class="field"><label for="imagePassword">${t("protectPassword")}</label><input id="imagePassword" type="password" minlength="6" autocomplete="new-password"></div>
             </div>
+            <div class="privacy-image-notice retention-notice">${icon("clock", 19)}<span>${t("retentionLimitNotice")}</span></div>
             <div class="privacy-image-notice">${icon("shield", 19)}<span>${t("privacyImageNotice")}</span></div>
             <button class="button primary image-submit" id="createImageQrButton" type="submit">${icon("upload", 18)} ${t("createImageQr")}</button>
           </form>
@@ -1642,6 +1653,7 @@ function imageQrTemplate() {
           ["faq1q", "faq1a"],
           ["faq2q", "faq2a"],
           ["faq3q", "faq3a"],
+          ["faq4q", "faq4a"],
         ].map(([question, answer], index) => `<details ${index === 0 ? "open" : ""}><summary>${t(question)}</summary><p>${t(answer)}</p></details>`).join("")}
       </section>
     </main>
@@ -1798,9 +1810,22 @@ function updatePageMeta() {
   const descriptionMeta = document.querySelector('meta[name="description"]');
   const ogTitle = document.querySelector('meta[property="og:title"]');
   const ogDescription = document.querySelector('meta[property="og:description"]');
+  const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+  const twitterDescription = document.querySelector('meta[name="twitter:description"]');
+  let canonical = document.querySelector('link[rel="canonical"]');
+  const routePath = appState.route === "home" ? "/" : appState.route === "view-image" && appState.viewImageId ? `/view/image/${appState.viewImageId}` : `/${appState.route}`;
+  const canonicalUrl = `${location.origin}${routePath}`;
   descriptionMeta?.setAttribute("content", description);
   ogTitle?.setAttribute("content", title);
   ogDescription?.setAttribute("content", description);
+  twitterTitle?.setAttribute("content", title);
+  twitterDescription?.setAttribute("content", description);
+  if (!canonical) {
+    canonical = document.createElement("link");
+    canonical.rel = "canonical";
+    document.head.appendChild(canonical);
+  }
+  canonical?.setAttribute("href", canonicalUrl);
 }
 
 function initAdsenseSlots() {
@@ -3642,4 +3667,14 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
+function registerServiceWorker() {
+  if (!("serviceWorker" in navigator) || !location.protocol.startsWith("http")) return;
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/service-worker.js").catch(() => {
+      // PWA enhancement only; the app must keep working even if registration is blocked.
+    });
+  });
+}
+
+registerServiceWorker();
 renderApp();

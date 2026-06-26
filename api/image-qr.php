@@ -149,11 +149,14 @@ function createImage(PDO $db, string $imageDir): never {
         respond(['error' => 'Password must contain at least 6 characters.'], 422);
     }
     $expiryDays = (int)($_POST['expiryDays'] ?? 7);
-    if (!in_array($expiryDays, [0, 7, 30], true)) {
+    if ($expiryDays > 15) {
+        $expiryDays = 15;
+    }
+    if (!in_array($expiryDays, [1, 7, 15], true)) {
         $expiryDays = 7;
     }
     $createdAt = gmdate('c');
-    $expiresAt = $expiryDays > 0 ? gmdate('c', time() + ($expiryDays * 86400)) : null;
+    $expiresAt = gmdate('c', time() + ($expiryDays * 86400));
     $passwordHash = $password !== '' ? password_hash($password, PASSWORD_DEFAULT) : null;
 
     $insert = $db->prepare('INSERT INTO images
