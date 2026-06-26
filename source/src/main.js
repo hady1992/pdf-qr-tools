@@ -1510,6 +1510,7 @@ function qrTemplate() {
           <div class="qr-canvas-wrap" id="qrCanvasWrap">
             <div class="qr-placeholder" id="qrPlaceholder">${icon(isBarcode ? "barcode" : "qr", 43, 1.4)}<small>${t("previewEmpty")}</small></div>
             <canvas id="qrCanvas" hidden></canvas>
+            <img id="qrPreviewImage" class="qr-preview-image" alt="${escapeHtml(t("livePreview"))}" hidden>
             <svg id="barcodeSvg" class="barcode-preview" hidden></svg>
           </div>
           <div class="qr-result-meta" id="qrResultMeta" hidden>
@@ -3206,6 +3207,8 @@ function bindSmartQrEvents() {
   document.querySelector("#resetQr")?.addEventListener("click", () => {
     document.querySelector("#qrForm")?.reset();
     document.querySelector("#qrCanvas")?.setAttribute("hidden", "");
+    document.querySelector("#qrPreviewImage")?.setAttribute("hidden", "");
+    document.querySelector("#qrPreviewImage")?.removeAttribute("src");
     document.querySelector("#barcodeSvg")?.setAttribute("hidden", "");
     document.querySelector("#qrPlaceholder")?.removeAttribute("hidden");
     document.querySelector("#qrResultMeta")?.setAttribute("hidden", "");
@@ -3225,6 +3228,8 @@ function bindSmartQrEvents() {
   document.querySelector("#qrPrintPreset")?.addEventListener("change", (event) => {
     appState.qrPrintPreset = event.target.value;
   });
+  document.querySelector('[name="phone"]')?.addEventListener("blur", normalizeVisiblePhoneField);
+  document.querySelector('[name="countryCode"]')?.addEventListener("change", normalizeVisiblePhoneField);
   document.querySelector("#downloadPng")?.addEventListener("click", downloadSmartPng);
   document.querySelector("#downloadSvg")?.addEventListener("click", downloadSmartSvg);
   document.querySelector("#downloadQrPdf")?.addEventListener("click", downloadSmartPdf);
@@ -3236,6 +3241,7 @@ async function generateSmartQr(event) {
   if (!form.reportValidity()) return;
   const values = Object.fromEntries(new FormData(form).entries());
   values.hidden = Boolean(form.querySelector('[name="hidden"]')?.checked);
+  normalizePhoneValues(values, form);
   if (!validateSmartQr(values)) {
     showToast(t("invalidQr"), true);
     return;
@@ -3264,7 +3270,12 @@ async function generateSmartQr(event) {
     }
     appState.qrSvg = svg;
     appState.generatedKind = "qr";
-    canvas.hidden = false;
+    const previewImage = document.querySelector("#qrPreviewImage");
+    if (previewImage) {
+      previewImage.src = canvas.toDataURL("image/png");
+      previewImage.hidden = false;
+    }
+    canvas.hidden = true;
     document.querySelector("#barcodeSvg")?.setAttribute("hidden", "");
     document.querySelector("#qrPlaceholder").hidden = true;
     document.querySelector("#qrResultMeta")?.removeAttribute("hidden");
@@ -3275,6 +3286,22 @@ async function generateSmartQr(event) {
     console.error(error);
     showToast(t("invalidQr"), true);
   }
+}
+
+function normalizeVisiblePhoneField() {
+  const form = document.querySelector("#qrForm");
+  if (!form) return;
+  const values = Object.fromEntries(new FormData(form).entries());
+  normalizePhoneValues(values, form);
+}
+
+function normalizePhoneValues(values, form) {
+  if (!["phone", "whatsapp", "sms", "vcard"].includes(appState.qrType) || !values.phone) return values;
+  const normalized = normalizePhoneForTel(values.phone, values.countryCode);
+  values.phone = normalized;
+  const input = form?.querySelector('[name="phone"]');
+  if (input && normalized) input.value = normalized;
+  return values;
 }
 
 function buildSmartQrContent(values) {
@@ -3338,6 +3365,7 @@ function generateBarcode(values) {
     appState.barcodeSvg = new XMLSerializer().serializeToString(svg);
     appState.generatedKind = "barcode";
     svg.hidden = false;
+    document.querySelector("#qrPreviewImage")?.setAttribute("hidden", "");
     canvas.hidden = true;
     document.querySelector("#qrPlaceholder").hidden = true;
     document.querySelector("#qrResultMeta")?.removeAttribute("hidden");
