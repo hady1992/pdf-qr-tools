@@ -868,6 +868,7 @@ Object.assign(runtimeTranslations.ar, {
   amount: "\u0627\u0644\u0645\u0628\u0644\u063a",
   currency: "\u0627\u0644\u0639\u0645\u0644\u0629",
   recipient: "\u0627\u0633\u0645 \u0627\u0644\u0645\u0633\u062a\u0644\u0645",
+  countryCode: "\u0627\u0644\u062f\u0648\u0644\u0629 / \u0631\u0645\u0632 \u0627\u0644\u062f\u0648\u0644\u0629",
   iban: "IBAN",
   bic: "BIC / SWIFT",
   paymentReason: "\u0633\u0628\u0628 \u0627\u0644\u062f\u0641\u0639",
@@ -880,7 +881,7 @@ Object.assign(runtimeTranslations.ar, {
   profileUrl: "\u0631\u0627\u0628\u0637 \u0627\u0644\u062d\u0633\u0627\u0628",
   barcodeValue: "\u0642\u064a\u0645\u0629 Barcode",
   barcodeFormat: "\u0646\u0648\u0639 Barcode",
-  phoneFormatHint: "\u0627\u0643\u062a\u0628 \u0627\u0644\u0631\u0642\u0645 \u0645\u0639 \u0631\u0645\u0632 \u0627\u0644\u062f\u0648\u0644\u0629 \u0645\u062b\u0644 +49 152 12345678 \u0623\u0648 0049 152 12345678\u060c \u0648\u0633\u064a\u062a\u0645 \u062a\u0646\u0638\u064a\u0641 \u0627\u0644\u0645\u0633\u0627\u0641\u0627\u062a \u0648\u0627\u0644\u0623\u0642\u0648\u0627\u0633 \u0648\u0627\u0644\u0634\u0631\u0637\u0627\u062a \u062a\u0644\u0642\u0627\u0626\u064a\u064b\u0627.",
+  phoneFormatHint: "\u0627\u062e\u062a\u0631 \u0627\u0644\u062f\u0648\u0644\u0629 \u062b\u0645 \u0627\u0643\u062a\u0628 \u0627\u0644\u0631\u0642\u0645 \u0645\u062d\u0644\u064a\u064b\u0627 \u0645\u062b\u0644 0172 5766513 \u0623\u0648 \u062f\u0648\u0644\u064a\u064b\u0627 \u0645\u062b\u0644 +49 \u0623\u0648 0049. \u0633\u0646\u0646\u0638\u0641 \u0627\u0644\u0645\u0633\u0627\u0641\u0627\u062a \u0648\u0627\u0644\u0623\u0642\u0648\u0627\u0633 \u0648\u0627\u0644\u0634\u0631\u0637\u0627\u062a \u062a\u0644\u0642\u0627\u0626\u064a\u064b\u0627.",
   qrWithLogo: "QR \u0645\u0639 Logo",
   uploadLogo: "\u0631\u0641\u0639 Logo",
   logoSize: "\u062d\u062c\u0645 \u0627\u0644\u0644\u0648\u063a\u0648",
@@ -928,9 +929,10 @@ Object.assign(runtimeTranslations.de, {
   fullName: "Vollst\u00e4ndiger Name", organization: "Unternehmen", address: "Adresse", mapsPlace: "Adresse oder Ort",
   menuUrl: "Link zur Speisekarte", paypalAccount: "PayPal-E-Mail", amount: "Betrag", currency: "W\u00e4hrung",
   recipient: "Empf\u00e4nger", iban: "IBAN", bic: "BIC / SWIFT", paymentReason: "Verwendungszweck", smsMessage: "SMS-Nachricht",
+  countryCode: "Land / Vorwahl",
   eventTitle: "Termintitel", eventStart: "Beginn", eventEnd: "Ende", location: "Ort", socialPlatform: "Plattform",
   profileUrl: "Profil-Link", barcodeValue: "Barcode-Wert", barcodeFormat: "Barcode-Format", qrWithLogo: "QR mit Logo",
-  phoneFormatHint: "Nummer mit L\u00e4ndervorwahl eingeben, z. B. +49 152 12345678 oder 0049 152 12345678. Leerzeichen, Klammern und Bindestriche werden automatisch bereinigt.",
+  phoneFormatHint: "Land ausw\u00e4hlen und die Nummer lokal wie 0172 5766513 oder international mit +49/0049 eingeben. Leerzeichen, Klammern und Bindestriche werden automatisch bereinigt.",
   uploadLogo: "Logo hochladen", logoSize: "Logogr\u00f6\u00dfe", logoWarning: "Ein zu gro\u00dfes Logo kann den QR-Code unlesbar machen. Empfohlen sind 15\u201320 %.",
   printSize: "Druckformat", size3cm: "3\u00d73 cm", size5cm: "5\u00d75 cm", size10cm: "10\u00d710 cm",
   a4Multiple: "A4 \u2014 mehrere QR-Codes", businessCard: "Visitenkarte", tableCard: "Restaurant-Tischkarte", downloadPrintPdf: "PDF herunterladen",
@@ -964,10 +966,10 @@ Object.assign(runtimeTranslations.en, {
   networkName: "Wi-Fi network name", wifiPassword: "Wi-Fi password", encryption: "Security", hiddenNetwork: "Hidden network",
   fullName: "Full name", organization: "Organization", address: "Address", mapsPlace: "Address or place",
   menuUrl: "Menu URL", paypalAccount: "PayPal email", amount: "Amount", currency: "Currency", recipient: "Recipient",
-  iban: "IBAN", bic: "BIC / SWIFT", paymentReason: "Payment reason", smsMessage: "SMS message", eventTitle: "Event title",
+  iban: "IBAN", bic: "BIC / SWIFT", paymentReason: "Payment reason", smsMessage: "SMS message", countryCode: "Country / code", eventTitle: "Event title",
   eventStart: "Start", eventEnd: "End", location: "Location", socialPlatform: "Platform", profileUrl: "Profile URL",
   barcodeValue: "Barcode value", barcodeFormat: "Barcode format", qrWithLogo: "QR with Logo", uploadLogo: "Upload logo",
-  phoneFormatHint: "Enter the number with country code, e.g. +49 152 12345678 or 0049 152 12345678. Spaces, brackets and dashes are cleaned automatically.",
+  phoneFormatHint: "Choose the country, then enter a local number like 0172 5766513 or an international number with +49/0049. Spaces, brackets and dashes are cleaned automatically.",
   logoSize: "Logo size", logoWarning: "A large logo can make the QR code impossible to scan. Keep it around 15\u201320%.",
   printSize: "Print size", size3cm: "3\u00d73 cm", size5cm: "5\u00d75 cm", size10cm: "10\u00d710 cm",
   a4Multiple: "A4 sheet \u2014 multiple QR codes", businessCard: "Business card", tableCard: "Restaurant table card", downloadPrintPdf: "Download PDF",
@@ -1565,19 +1567,46 @@ function qrSelect(name, label, options) {
   return `<div class="field"><label for="qr-${name}">${label}</label><select class="qr-main-input" id="qr-${name}" name="${name}">${options.map(([value, text]) => `<option value="${value}">${text}</option>`).join("")}</select></div>`;
 }
 
+function countryCodeOptions() {
+  return [
+    ["49", "🇩🇪 Deutschland +49"],
+    ["963", "🇸🇾 سوريا +963"],
+    ["90", "🇹🇷 Türkiye +90"],
+    ["43", "🇦🇹 Österreich +43"],
+    ["41", "🇨🇭 Schweiz +41"],
+    ["31", "🇳🇱 Nederland +31"],
+    ["32", "🇧🇪 België +32"],
+    ["33", "🇫🇷 France +33"],
+    ["39", "🇮🇹 Italia +39"],
+    ["34", "🇪🇸 España +34"],
+    ["44", "🇬🇧 United Kingdom +44"],
+    ["1", "🇺🇸 USA / Canada +1"],
+    ["971", "🇦🇪 الإمارات +971"],
+    ["966", "🇸🇦 السعودية +966"],
+    ["964", "🇮🇶 العراق +964"],
+    ["961", "🇱🇧 لبنان +961"],
+    ["962", "🇯🇴 الأردن +962"],
+    ["20", "🇪🇬 مصر +20"],
+  ];
+}
+
+function phoneInputGroup(label, options = {}) {
+  return `${qrSelect("countryCode", t("countryCode"), countryCodeOptions())}${qrField("phone", label, "tel", options)}`;
+}
+
 function qrFieldsTemplate() {
   switch (appState.qrType) {
     case "wifi": return `${qrField("ssid", t("networkName"))}${qrField("password", t("wifiPassword"), "text", { required: false })}${qrSelect("encryption", t("encryption"), [["WPA", "WPA/WPA2"], ["WEP", "WEP"], ["nopass", "Open"]])}<label class="check-field"><input name="hidden" type="checkbox"> ${t("hiddenNetwork")}</label>`;
-    case "vcard": return `${qrField("name", t("fullName"))}${qrField("organization", t("organization"), "text", { required: false })}${qrField("phone", t("phone"), "tel")}${qrField("email", t("email"), "email", { required: false })}${qrField("url", t("url"), "url", { required: false })}${qrField("address", t("address"), "text", { required: false, full: true })}<div class="field-help full">${icon("info", 14)} ${t("phoneFormatHint")}</div>`;
+    case "vcard": return `${qrField("name", t("fullName"))}${qrField("organization", t("organization"), "text", { required: false })}${phoneInputGroup(t("phone"))}${qrField("email", t("email"), "email", { required: false })}${qrField("url", t("url"), "url", { required: false })}${qrField("address", t("address"), "text", { required: false, full: true })}<div class="field-help full">${icon("info", 14)} ${t("phoneFormatHint")}</div>`;
     case "maps": return qrField("place", t("mapsPlace"), "text", { full: true });
     case "menu": return qrField("url", t("menuUrl"), "url", { full: true });
     case "paypal": return `${qrField("email", t("paypalAccount"), "email")}${qrField("amount", t("amount"), "number", { required: false, extra: 'min="0" step="0.01"' })}${qrSelect("currency", t("currency"), [["EUR", "EUR"], ["USD", "USD"], ["GBP", "GBP"]])}`;
     case "iban": return `${qrField("recipient", t("recipient"))}${qrField("iban", t("iban"))}${qrField("bic", t("bic"), "text", { required: false })}${qrField("amount", t("amount"), "number", { extra: 'min="0.01" step="0.01"' })}${qrField("reason", t("paymentReason"), "text", { required: false, full: true })}`;
-    case "sms": return `${qrField("phone", t("enterPhone"), "tel")}${qrTextarea("message", t("smsMessage"))}<div class="field-help full">${icon("info", 14)} ${t("phoneFormatHint")}</div>`;
+    case "sms": return `${phoneInputGroup(t("enterPhone"))}${qrTextarea("message", t("smsMessage"))}<div class="field-help full">${icon("info", 14)} ${t("phoneFormatHint")}</div>`;
     case "event": return `${qrField("title", t("eventTitle"))}${qrField("start", t("eventStart"), "datetime-local")}${qrField("end", t("eventEnd"), "datetime-local")}${qrField("location", t("location"), "text", { required: false })}${qrTextarea("description", t("description"), false)}`;
     case "social": return `${qrSelect("platform", t("socialPlatform"), [["instagram", "Instagram"], ["facebook", "Facebook"], ["tiktok", "TikTok"], ["linkedin", "LinkedIn"], ["youtube", "YouTube"], ["x", "X / Twitter"]])}${qrField("url", t("profileUrl"), "url")}`;
-    case "whatsapp": return `${qrField("phone", t("enterWhatsapp"), "tel")}${qrTextarea("message", t("whatsappMessage"), false)}<div class="field-help full">${icon("info", 14)} ${t("phoneFormatHint")}</div>`;
-    case "phone": return `${qrField("phone", t("enterPhone"), "tel", { full: true })}<div class="field-help full">${icon("info", 14)} ${t("phoneFormatHint")}</div>`;
+    case "whatsapp": return `${phoneInputGroup(t("enterWhatsapp"))}${qrTextarea("message", t("whatsappMessage"), false)}<div class="field-help full">${icon("info", 14)} ${t("phoneFormatHint")}</div>`;
+    case "phone": return `${phoneInputGroup(t("enterPhone"))}<div class="field-help full">${icon("info", 14)} ${t("phoneFormatHint")}</div>`;
     case "email": return qrField("email", t("enterEmail"), "email", { full: true });
     case "text": return qrTextarea("text", t("enterText"));
     case "barcode": return `${qrSelect("format", t("barcodeFormat"), [["CODE128", "Code128"], ["EAN13", "EAN-13"], ["EAN8", "EAN-8"], ["UPC", "UPC-A"]])}${qrField("value", t("barcodeValue"))}`;
@@ -3113,18 +3142,20 @@ function normalizePhoneDigits(value = "") {
   return String(value).replace(/\D/g, "");
 }
 
-function normalizePhoneForWhatsapp(value = "") {
+function normalizePhoneForWhatsapp(value = "", countryCode = "49") {
   const digits = normalizePhoneDigits(value);
-  return digits.startsWith("00") ? digits.slice(2) : digits;
+  const selectedCode = normalizePhoneDigits(countryCode) || "49";
+  if (digits.startsWith("00")) return digits.slice(2);
+  if (String(value).trim().startsWith("+")) return digits;
+  if (digits.startsWith(selectedCode)) return digits;
+  return `${selectedCode}${digits.replace(/^0+/, "")}`;
 }
 
-function normalizePhoneForTel(value = "") {
+function normalizePhoneForTel(value = "", countryCode = "49") {
   const trimmed = String(value).trim();
-  const digits = normalizePhoneDigits(trimmed);
-  if (!digits) return "";
-  if (trimmed.startsWith("+")) return `+${digits}`;
-  if (digits.startsWith("00")) return `+${digits.slice(2)}`;
-  return digits;
+  const normalized = normalizePhoneForWhatsapp(trimmed, countryCode);
+  if (!normalized) return "";
+  return `+${normalized}`;
 }
 
 function normalizeSmartUrl(value) {
@@ -3189,6 +3220,7 @@ function bindSmartQrEvents() {
   document.querySelector("#qrLogoSize")?.addEventListener("input", (event) => {
     appState.qrLogoSize = Number(event.target.value);
     setText("#qrLogoSizeValue", `${appState.qrLogoSize}%`);
+    regenerateSmartQrIfReady();
   });
   document.querySelector("#qrPrintPreset")?.addEventListener("change", (event) => {
     appState.qrPrintPreset = event.target.value;
@@ -3249,17 +3281,17 @@ function buildSmartQrContent(values) {
   const wifiEscape = (value = "") => String(value).replace(/([\\;,":])/g, "\\$1");
   switch (appState.qrType) {
     case "url": return normalizeSmartUrl(values.url);
-    case "phone": return `tel:${normalizePhoneForTel(values.phone)}`;
+    case "phone": return `tel:${normalizePhoneForTel(values.phone, values.countryCode)}`;
     case "email": return `mailto:${values.email}`;
     case "text": return values.text;
-    case "whatsapp": return `https://wa.me/${normalizePhoneForWhatsapp(values.phone)}${values.message ? `?text=${encodeURIComponent(values.message)}` : ""}`;
+    case "whatsapp": return `https://wa.me/${normalizePhoneForWhatsapp(values.phone, values.countryCode)}${values.message ? `?text=${encodeURIComponent(values.message)}` : ""}`;
     case "wifi": return `WIFI:T:${values.encryption};S:${wifiEscape(values.ssid)};P:${wifiEscape(values.password)};H:${values.hidden ? "true" : "false"};;`;
-    case "vcard": return `BEGIN:VCARD\nVERSION:3.0\nFN:${values.name}\nORG:${values.organization || ""}\nTEL:${normalizePhoneForTel(values.phone)}\nEMAIL:${values.email || ""}\nURL:${values.url || ""}\nADR:;;${values.address || ""};;;;\nEND:VCARD`;
+    case "vcard": return `BEGIN:VCARD\nVERSION:3.0\nFN:${values.name}\nORG:${values.organization || ""}\nTEL:${normalizePhoneForTel(values.phone, values.countryCode)}\nEMAIL:${values.email || ""}\nURL:${values.url || ""}\nADR:;;${values.address || ""};;;;\nEND:VCARD`;
     case "maps": return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(values.place)}`;
     case "menu": return normalizeSmartUrl(values.url);
     case "paypal": return `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(values.email)}&currency_code=${values.currency}${values.amount ? `&amount=${encodeURIComponent(values.amount)}` : ""}`;
     case "iban": return `BCD\n002\n1\nSCT\n${values.bic || ""}\n${values.recipient}\n${values.iban.replace(/\s/g, "").toUpperCase()}\nEUR${Number(values.amount).toFixed(2)}\n\n\n${values.reason || ""}`;
-    case "sms": return `SMSTO:${normalizePhoneForTel(values.phone)}:${values.message}`;
+    case "sms": return `SMSTO:${normalizePhoneForTel(values.phone, values.countryCode)}:${values.message}`;
     case "event": return `BEGIN:VEVENT\nSUMMARY:${values.title}\nDTSTART:${toCalendarDate(values.start)}\nDTEND:${toCalendarDate(values.end)}\nLOCATION:${values.location || ""}\nDESCRIPTION:${values.description || ""}\nEND:VEVENT`;
     case "social": return normalizeSmartUrl(values.url);
     default: return values.url || values.text || "";
@@ -3327,12 +3359,21 @@ function handleQrLogo(event) {
   reader.onload = () => {
     appState.qrLogoDataUrl = String(reader.result);
     setText("#qrLogoName", file.name);
+    regenerateSmartQrIfReady();
   };
   reader.readAsDataURL(file);
 }
 
+function regenerateSmartQrIfReady() {
+  const form = document.querySelector("#qrForm");
+  const previewReady = Boolean(appState.qrSvg && appState.generatedKind === "qr" && form);
+  if (!previewReady) return;
+  form.requestSubmit();
+}
+
 async function drawLogoOnCanvas(canvas) {
   const image = new Image();
+  image.crossOrigin = "anonymous";
   image.src = appState.qrLogoDataUrl;
   await image.decode();
   const context = canvas.getContext("2d");
