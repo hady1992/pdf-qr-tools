@@ -1,16 +1,20 @@
 import "./style.css";
 import QRCode from "qrcode";
 import JsBarcode from "jsbarcode";
+import { pdfToolRoutes, toolCategories, toolsData } from "./toolsData.ts";
 
 let pdfjsLib;
 let PDFDocument;
+let StandardFonts;
 let Canvas;
 let Circle;
+let degrees;
 let Group;
 let IText;
 let Line;
 let PencilBrush;
 let Rect;
+let rgb;
 let StaticCanvas;
 let Triangle;
 
@@ -37,7 +41,7 @@ async function ensurePdfLibraries() {
   ]);
   pdfjsLib = pdfModule;
   pdfjsLib.GlobalWorkerOptions.workerSrc = workerModule.default;
-  ({ PDFDocument } = pdfLibModule);
+  ({ PDFDocument, StandardFonts, degrees, rgb } = pdfLibModule);
   ({ Canvas, Circle, Group, IText, Line, PencilBrush, Rect, StaticCanvas, Triangle } = fabricModule);
 }
 
@@ -677,6 +681,7 @@ const iconPaths = {
   file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/>',
   qr: '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 20h2M20 14h1v2M18 14v2"/>',
   image: '<rect width="20" height="16" x="2" y="4" rx="2"/><circle cx="8" cy="9" r="2"/><path d="m22 15-5-5L5 20"/>',
+  compress: '<path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/><path d="M9 9h6v6H9z"/>',
   wifi: '<path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 20h.01M2 9a15 15 0 0 1 20 0"/>',
   mapPin: '<path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="2.5"/>',
   menuBook: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5z"/><path d="M4 6.5v13M8 8h8M8 12h6"/>',
@@ -732,6 +737,7 @@ const iconPaths = {
   check: '<path d="m20 6-11 11-5-5"/>',
   sparkle: '<path d="m12 3-1.9 4.6L5.5 9.5l4.6 1.9L12 16l1.9-4.6 4.6-1.9-4.6-1.9z"/><path d="M5 3v4M3 5h4M19 17v4M17 19h4"/>',
   clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
 };
 
 function icon(name, size = 20, stroke = 2) {
@@ -786,6 +792,22 @@ const editorState = {
     eraserWidth: 28,
     highlightColor: "#ffd45c",
   },
+};
+
+const pdfToolState = {
+  file: null,
+  files: [],
+  bytes: null,
+  resultBytes: null,
+  resultName: "",
+  images: [],
+  pageThumbs: [],
+  renderedImages: [],
+  pageOrder: [],
+  rotations: {},
+  redactions: [],
+  signatureDataUrl: "",
+  activeDragIndex: null,
 };
 
 const runtimeTranslations = {
@@ -981,6 +1003,264 @@ Object.assign(runtimeTranslations.en, {
   description: "Description",
 });
 
+Object.assign(runtimeTranslations.ar, {
+  toolsHub: "الأدوات",
+  allToolsTitle: "كل أدوات PDF و QR في مكان واحد",
+  allToolsCopy: "ابحث عن الأداة المناسبة ثم عالج ملفاتك داخل المتصفح بدون رفعها إلى أي خادم.",
+  searchTools: "ابحث عن أداة",
+  searchPlaceholder: "مثلاً: ضغط، توقيع، تدوير، schwärzen, compress...",
+  noToolFound: "لم يتم العثور على أداة مناسبة",
+  closeMatches: "اقتراحات قريبة",
+  popularTools: "الأكثر استخداماً",
+  newTool: "جديد",
+  openTool: "فتح الأداة",
+  clientPrivacyNotice: "تتم معالجة الملفات داخل المتصفح ولا يتم رفعها إلى أي خادم.",
+  choosePdf: "اختر ملف PDF",
+  chooseImages: "اختر الصور",
+  chooseFiles: "اختر الملفات",
+  dropFilesHere: "أفلت الملف هنا للرفع",
+  fileBefore: "الحجم قبل",
+  fileAfter: "الحجم بعد",
+  compressionLevel: "مستوى الضغط",
+  light: "خفيف",
+  medium: "متوسط",
+  strong: "قوي",
+  processFile: "معالجة الملف",
+  createPdf: "إنشاء PDF",
+  downloadResult: "تحميل النتيجة",
+  downloadAll: "تحميل الكل",
+  qualityMayChange: "قد تتغير جودة الصور حسب مستوى الضغط. الضغط داخل المتصفح محدود حسب بنية ملف PDF.",
+  unsupportedFile: "الملف غير مدعوم.",
+  emptyFile: "لا يمكن معالجة ملف فارغ.",
+  fileTooLarge: "الملف كبير جداً وقد يحتاج وقتاً أطول.",
+  processing: "جاري المعالجة…",
+  done: "تمت المعالجة بنجاح.",
+  pageSize: "حجم الصفحة",
+  orientation: "اتجاه الصفحة",
+  margins: "الهوامش",
+  noMargin: "بدون هامش",
+  smallMargin: "صغير",
+  mediumMargin: "متوسط",
+  sameAsImage: "نفس حجم الصورة",
+  portrait: "Portrait",
+  landscape: "Landscape",
+  optionalImageCompression: "ضغط الصور اختيارياً",
+  pagesRange: "الصفحات",
+  allPages: "كل الصفحات",
+  selectedPages: "صفحات محددة",
+  pagesExample: "مثال: 1-3,5",
+  quality: "الجودة",
+  low: "منخفضة",
+  high: "عالية",
+  outputFormat: "صيغة الصور",
+  drawSignature: "ارسم التوقيع",
+  clearSignature: "مسح التوقيع",
+  uploadSignature: "رفع صورة توقيع PNG",
+  signaturePage: "صفحة التوقيع",
+  signatureSize: "حجم التوقيع",
+  signaturePosition: "مكان التوقيع",
+  rotateRight: "تدوير يمين",
+  rotateLeft: "تدوير يسار",
+  rotateAll: "تدوير كل الصفحات",
+  rotateSelected: "تدوير المحدد",
+  pageNumberPosition: "مكان الرقم",
+  numberingStart: "بداية الترقيم",
+  numberFormat: "شكل الرقم",
+  preview: "معاينة",
+  watermarkText: "نص العلامة المائية",
+  watermarkImage: "صورة العلامة المائية",
+  rotation: "الدوران",
+  position: "المكان",
+  center: "وسط الصفحة",
+  top: "أعلى",
+  bottom: "أسفل",
+  tiled: "مكرر على كامل الصفحة",
+  redactWarning: "تأكد من تحميل الملف النهائي وفحصه قبل الإرسال. هذه الأداة تساعد على إخفاء المعلومات، لكن يجب التأكد من النتيجة.",
+  addRedaction: "إضافة مستطيل إخفاء",
+  cropBox: "منطقة القص",
+  applyToAllPages: "تطبيق على كل الصفحات",
+  protectComingSoon: "هذه الميزة قيد التطوير.",
+  protectLimit: "تشفير PDF بكلمة مرور بشكل موثوق غير مدعوم بالكامل في pdf-lib داخل المتصفح حالياً، لذلك تركنا الصفحة جاهزة بدون كسر المشروع.",
+  reorderHint: "اسحب البطاقات لتغيير الترتيب، أو استخدم أزرار الحذف والتدوير.",
+  submissionType: "نوع المعاملة",
+  suggestedFileName: "اسم ملف مقترح",
+  similarTools: "أدوات مشابهة",
+  howToolWorks: "طريقة الاستخدام",
+  faq: "أسئلة شائعة",
+});
+
+Object.assign(runtimeTranslations.de, {
+  toolsHub: "Tools",
+  allToolsTitle: "Alle PDF- und QR-Tools an einem Ort",
+  allToolsCopy: "Finde das passende Tool und verarbeite Dateien direkt im Browser ohne Upload auf einen Server.",
+  searchTools: "Tool suchen",
+  searchPlaceholder: "z. B. komprimieren, unterschreiben, drehen, schwärzen...",
+  noToolFound: "Kein passendes Tool gefunden",
+  closeMatches: "Ähnliche Vorschläge",
+  popularTools: "Beliebt",
+  newTool: "Neu",
+  openTool: "Tool öffnen",
+  clientPrivacyNotice: "Dateien werden im Browser verarbeitet und nicht auf einen Server hochgeladen.",
+  choosePdf: "PDF auswählen",
+  chooseImages: "Bilder auswählen",
+  chooseFiles: "Dateien auswählen",
+  dropFilesHere: "Datei hier ablegen",
+  fileBefore: "Größe vorher",
+  fileAfter: "Größe nachher",
+  compressionLevel: "Komprimierungsstufe",
+  light: "Leicht",
+  medium: "Mittel",
+  strong: "Stark",
+  processFile: "Datei verarbeiten",
+  createPdf: "PDF erstellen",
+  downloadResult: "Ergebnis herunterladen",
+  downloadAll: "Alle herunterladen",
+  qualityMayChange: "Die Bildqualität kann sich je nach Komprimierung ändern. Browser-Komprimierung ist je nach PDF-Struktur begrenzt.",
+  unsupportedFile: "Dateityp wird nicht unterstützt.",
+  emptyFile: "Leere Dateien können nicht verarbeitet werden.",
+  fileTooLarge: "Die Datei ist sehr groß und kann länger dauern.",
+  processing: "Verarbeitung läuft…",
+  done: "Verarbeitung abgeschlossen.",
+  pageSize: "Seitengröße",
+  orientation: "Ausrichtung",
+  margins: "Ränder",
+  noMargin: "Kein Rand",
+  smallMargin: "Klein",
+  mediumMargin: "Mittel",
+  sameAsImage: "Bildgröße",
+  portrait: "Hochformat",
+  landscape: "Querformat",
+  optionalImageCompression: "Bilder optional komprimieren",
+  pagesRange: "Seiten",
+  allPages: "Alle Seiten",
+  selectedPages: "Bestimmte Seiten",
+  pagesExample: "Beispiel: 1-3,5",
+  quality: "Qualität",
+  low: "Niedrig",
+  high: "Hoch",
+  outputFormat: "Bildformat",
+  drawSignature: "Unterschrift zeichnen",
+  clearSignature: "Unterschrift löschen",
+  uploadSignature: "PNG-Signatur hochladen",
+  signaturePage: "Signaturseite",
+  signatureSize: "Signaturgröße",
+  signaturePosition: "Signaturposition",
+  rotateRight: "Rechts drehen",
+  rotateLeft: "Links drehen",
+  rotateAll: "Alle Seiten drehen",
+  rotateSelected: "Auswahl drehen",
+  pageNumberPosition: "Position",
+  numberingStart: "Startnummer",
+  numberFormat: "Nummernformat",
+  preview: "Vorschau",
+  watermarkText: "Wasserzeichen-Text",
+  watermarkImage: "Wasserzeichen-Bild",
+  rotation: "Drehung",
+  position: "Position",
+  center: "Seitenmitte",
+  top: "Oben",
+  bottom: "Unten",
+  tiled: "Auf ganzer Seite wiederholen",
+  redactWarning: "Bitte lade die fertige Datei herunter und prüfe sie vor dem Versand. Dieses Tool hilft beim Schwärzen, das Ergebnis muss aber kontrolliert werden.",
+  addRedaction: "Schwärzungsrechteck hinzufügen",
+  cropBox: "Zuschneidebereich",
+  applyToAllPages: "Auf alle Seiten anwenden",
+  protectComingSoon: "Diese Funktion ist in Entwicklung.",
+  protectLimit: "Zuverlässige PDF-Passwortverschlüsselung wird von pdf-lib im Browser aktuell nicht vollständig unterstützt.",
+  reorderHint: "Ziehe die Karten zum Sortieren oder nutze Löschen/Drehen.",
+  submissionType: "Antragsart",
+  suggestedFileName: "Vorgeschlagener Dateiname",
+  similarTools: "Ähnliche Tools",
+  howToolWorks: "So funktioniert es",
+  faq: "FAQ",
+});
+
+Object.assign(runtimeTranslations.en, {
+  toolsHub: "Tools",
+  allToolsTitle: "All PDF and QR tools in one place",
+  allToolsCopy: "Find the right tool and process files in your browser without uploading them to any server.",
+  searchTools: "Search tools",
+  searchPlaceholder: "Try: compress, sign, rotate, redact, merge...",
+  noToolFound: "No suitable tool found",
+  closeMatches: "Close suggestions",
+  popularTools: "Most used",
+  newTool: "New",
+  openTool: "Open tool",
+  clientPrivacyNotice: "Files are processed in your browser and are not uploaded to any server.",
+  choosePdf: "Choose PDF",
+  chooseImages: "Choose images",
+  chooseFiles: "Choose files",
+  dropFilesHere: "Drop the file here",
+  fileBefore: "Before",
+  fileAfter: "After",
+  compressionLevel: "Compression level",
+  light: "Light",
+  medium: "Medium",
+  strong: "Strong",
+  processFile: "Process file",
+  createPdf: "Create PDF",
+  downloadResult: "Download result",
+  downloadAll: "Download all",
+  qualityMayChange: "Image quality may change depending on compression level. Browser compression is limited by the PDF structure.",
+  unsupportedFile: "Unsupported file.",
+  emptyFile: "Empty files cannot be processed.",
+  fileTooLarge: "This file is large and may take longer.",
+  processing: "Processing…",
+  done: "Done.",
+  pageSize: "Page size",
+  orientation: "Orientation",
+  margins: "Margins",
+  noMargin: "No margin",
+  smallMargin: "Small",
+  mediumMargin: "Medium",
+  sameAsImage: "Same as image",
+  portrait: "Portrait",
+  landscape: "Landscape",
+  optionalImageCompression: "Optional image compression",
+  pagesRange: "Pages",
+  allPages: "All pages",
+  selectedPages: "Selected pages",
+  pagesExample: "Example: 1-3,5",
+  quality: "Quality",
+  low: "Low",
+  high: "High",
+  outputFormat: "Image format",
+  drawSignature: "Draw signature",
+  clearSignature: "Clear signature",
+  uploadSignature: "Upload PNG signature",
+  signaturePage: "Signature page",
+  signatureSize: "Signature size",
+  signaturePosition: "Signature position",
+  rotateRight: "Rotate right",
+  rotateLeft: "Rotate left",
+  rotateAll: "Rotate all pages",
+  rotateSelected: "Rotate selected",
+  pageNumberPosition: "Number position",
+  numberingStart: "Start numbering",
+  numberFormat: "Number format",
+  preview: "Preview",
+  watermarkText: "Watermark text",
+  watermarkImage: "Watermark image",
+  rotation: "Rotation",
+  position: "Position",
+  center: "Page center",
+  top: "Top",
+  bottom: "Bottom",
+  tiled: "Repeated across page",
+  redactWarning: "Download and inspect the final file before sending. This tool helps hide information, but you must verify the result.",
+  addRedaction: "Add redaction rectangle",
+  cropBox: "Crop area",
+  applyToAllPages: "Apply to all pages",
+  protectComingSoon: "This feature is in development.",
+  protectLimit: "Reliable PDF password encryption is not fully supported by pdf-lib in the browser yet, so this page is prepared without breaking the app.",
+  reorderHint: "Drag cards to reorder, or use delete/rotate buttons.",
+  submissionType: "Submission type",
+  suggestedFileName: "Suggested file name",
+  similarTools: "Similar tools",
+  howToolWorks: "How it works",
+  faq: "FAQ",
+});
+
 const t = (key) => runtimeTranslations[appState.lang]?.[key] ?? translations[appState.lang][key] ?? key;
 const app = document.querySelector("#app");
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
@@ -1037,6 +1317,7 @@ function headerTemplate() {
         <nav class="main-nav" id="mainNav">
           ${routeLink("home", t("home"), `nav-link ${active("home")}`)}
           ${routeLink("editor", t("pdfEditor"), `nav-link ${active("editor")}`)}
+          ${routeLink("tools", t("toolsHub"), `nav-link ${active("tools")}`)}
           ${routeLink("qr", t("qrCreator"), `nav-link ${active("qr")}`)}
           ${routeLink("image-qr-code", t("imageQr"), `nav-link ${active("image-qr-code")}`)}
           ${routeLink("privacy", t("privacy"), `nav-link ${active("privacy")}`)}
@@ -1087,6 +1368,7 @@ function footerTemplate() {
             <div class="footer-title">${t("footerTools")}</div>
             <div class="footer-links">
               ${routeLink("editor", t("pdfEditor"))}
+              ${routeLink("tools", t("toolsHub"))}
               ${routeLink("qr", t("qrCreator"))}
               ${routeLink("image-qr-code", t("imageQr"))}
             </div>
@@ -1159,6 +1441,11 @@ function homeTemplate() {
           ${trustItem("user", t("noAccount"), t("noAccountSub"))}
         </div>
       </section>
+      <section class="section tools-search-section">
+        <div class="container">
+          ${toolsSearchTemplate(true)}
+        </div>
+      </section>
       <div class="container">${adSlot("homeTop", "مساحة إعلانية", "wide")}</div>
       <section class="section alt">
         <div class="container">
@@ -1227,6 +1514,1043 @@ function stepCard(number, titleKey, copyKey) {
 
 function futurePill(key) {
   return `<a href="#/editor" class="future-pill available">${icon("check", 15)} ${t(key)} <span class="soon">${t("soon")}</span></a>`;
+}
+
+function localText(value) {
+  return value?.[appState.lang] || value?.en || "";
+}
+
+function getToolByRoute(route = appState.route) {
+  return toolsData.find((tool) => tool.route === route);
+}
+
+function searchableToolText(tool) {
+  return [
+    ...Object.values(tool.title || {}),
+    ...Object.values(tool.description || {}),
+    ...Object.values(tool.keywords || {}).flat(),
+    tool.category,
+    tool.id,
+    tool.route,
+  ]
+    .join(" ")
+    .toLowerCase();
+}
+
+function getFilteredTools(query = "", category = "all") {
+  const normalized = query.trim().toLowerCase();
+  return toolsData.filter((tool) => {
+    const matchesCategory =
+      category === "all" ||
+      (category === "popular" ? tool.isPopular : tool.category === category);
+    const matchesQuery = !normalized || searchableToolText(tool).includes(normalized);
+    return matchesCategory && matchesQuery;
+  });
+}
+
+function toolsSearchTemplate(compact = false) {
+  const categories = [{ id: "all", label: { ar: "الكل", de: "Alle", en: "All" } }, ...toolCategories];
+  return `
+    <section class="tools-search-card ${compact ? "compact" : ""}">
+      <div class="tools-search-head">
+        <div>
+          <div class="section-kicker">${t("searchTools")}</div>
+          <h2>${compact ? t("popularTools") : t("allToolsTitle")}</h2>
+          ${compact ? "" : `<p>${t("allToolsCopy")}</p>`}
+        </div>
+        ${routeLink("privacy", `${icon("shield", 16)} ${t("privacy")}`, "privacy-mini-link")}
+      </div>
+      <label class="search-box">
+        ${icon("search", 20)}
+        <input id="toolsSearchInput" type="search" placeholder="${escapeHtml(t("searchPlaceholder"))}" autocomplete="off">
+      </label>
+      <div class="tool-filter-row" id="toolFilterRow">
+        ${categories
+          .map((category) => `<button class="tool-filter ${category.id === "all" ? "active" : ""}" data-category="${category.id}">${localText(category.label)}</button>`)
+          .join("")}
+      </div>
+      <div class="tool-results-grid" id="toolResultsGrid">
+        ${renderToolCards(compact ? toolsData.filter((tool) => tool.isPopular).slice(0, 6) : toolsData)}
+      </div>
+    </section>
+  `;
+}
+
+function renderToolCards(tools) {
+  if (!tools.length) {
+    const suggestions = toolsData.filter((tool) => tool.isPopular).slice(0, 4);
+    return `
+      <div class="tool-empty-state">
+        ${icon("info", 34)}
+        <h3>${t("noToolFound")}</h3>
+        <p>${t("closeMatches")}</p>
+        <div class="mini-tool-links">${suggestions.map((tool) => routeLink(tool.route, localText(tool.title), "mini-tool-link")).join("")}</div>
+      </div>
+    `;
+  }
+  return tools.map(toolCardTemplate).join("");
+}
+
+function toolCardTemplate(tool) {
+  return `
+    <a class="tool-data-card ${tool.isPopular ? "popular" : ""}" href="#/${tool.route}">
+      <div class="tool-data-icon">${icon(tool.icon || "file", 25, 1.8)}</div>
+      <div>
+        <div class="tool-card-flags">
+          ${tool.isPopular ? `<span>${t("popularTools")}</span>` : ""}
+          ${tool.isNew ? `<span>${t("newTool")}</span>` : ""}
+        </div>
+        <h3>${localText(tool.title)}</h3>
+        <p>${localText(tool.description)}</p>
+        <strong>${t("openTool")} ${icon("arrowRight", 15)}</strong>
+      </div>
+    </a>
+  `;
+}
+
+function toolsTemplate() {
+  return `
+    <main class="page-main tools-page-main">
+      <div class="page-intro container">
+        <div class="eyebrow"><span class="eyebrow-dot"></span>${t("toolsHub")}</div>
+        <h1>${t("allToolsTitle")}</h1>
+        <p>${t("allToolsCopy")}</p>
+        <div class="privacy-note">${icon("shield", 18)}<span>${t("clientPrivacyNotice")}</span></div>
+      </div>
+      <div class="container">${adSlot("contentTop", "AdSense Placeholder", "wide")}</div>
+      <div class="container">${toolsSearchTemplate()}</div>
+    </main>
+  `;
+}
+
+function pdfToolTemplate() {
+  const tool = getToolByRoute();
+  if (!tool) return toolsTemplate();
+  return `
+    <main class="page-main pdf-tool-main" data-pdf-tool="${tool.route}">
+      <div class="page-intro container">
+        <div class="eyebrow"><span class="eyebrow-dot"></span>${t("toolsHub")}</div>
+        <h1>${localText(tool.title)}</h1>
+        <p>${localText(tool.description)}</p>
+        <div class="privacy-note">${icon("shield", 18)}<span>${t("clientPrivacyNotice")}</span></div>
+      </div>
+      <div class="container">${adSlot("contentTop", "AdSense Placeholder", "wide")}</div>
+      <div class="container pdf-tool-layout">
+        <section class="pdf-tool-card">
+          ${pdfToolFormTemplate(tool.route)}
+          <div class="tool-progress" id="pdfToolProgress" hidden><span></span><strong>${t("processing")}</strong></div>
+          <div class="pdf-tool-result" id="pdfToolResult" hidden></div>
+        </section>
+        <aside class="pdf-tool-side">
+          <div class="privacy-callout small">${icon("shield", 22)}<span>${t("clientPrivacyNotice")}</span></div>
+          ${toolSeoTemplate(tool)}
+          ${adSlot("editorBottom", "AdSense Placeholder", "box")}
+        </aside>
+      </div>
+    </main>
+  `;
+}
+
+function pdfToolFormTemplate(route) {
+  if (route === "protect-pdf") {
+    return `
+      <div class="coming-soon-tool">
+        ${icon("shield", 48)}
+        <h2>${t("protectComingSoon")}</h2>
+        <p>${t("protectLimit")}</p>
+      </div>
+    `;
+  }
+  const fileAccept = route === "images-to-pdf" ? "image/jpeg,image/png,image/webp" : route === "prepare-submission" ? "application/pdf,image/jpeg,image/png,image/webp" : "application/pdf";
+  const multiple = ["images-to-pdf", "prepare-submission"].includes(route) ? "multiple" : "";
+  return `
+    <form id="pdfToolForm" class="pdf-tool-form">
+      <label class="drop-zone tool-drop-zone" id="pdfToolDropZone">
+        ${icon(route === "images-to-pdf" ? "image" : "upload", 42)}
+        <strong>${route === "images-to-pdf" ? t("chooseImages") : route === "prepare-submission" ? t("chooseFiles") : t("choosePdf")}</strong>
+        <span>${t("clientPrivacyNotice")}</span>
+        <input id="pdfToolFile" type="file" accept="${fileAccept}" ${multiple}>
+      </label>
+      ${pdfToolOptionsTemplate(route)}
+      <div class="tool-preview-panel" id="pdfToolPreview"></div>
+      <div class="tool-actions-row">
+        <button class="button primary" type="submit">${icon("sparkle", 18)} ${route === "images-to-pdf" || route === "prepare-submission" ? t("createPdf") : t("processFile")}</button>
+        <button class="button secondary" id="pdfToolDownload" type="button" disabled>${icon("download", 18)} ${t("downloadResult")}</button>
+      </div>
+    </form>
+  `;
+}
+
+function pdfToolOptionsTemplate(route) {
+  const pageSelect = `
+    <div class="field"><label>${t("pagesRange")}</label><input name="pages" type="text" placeholder="${t("pagesExample")}"></div>
+  `;
+  if (route === "compress-pdf") {
+    return `
+      <div class="tool-options-grid">
+        <div class="field"><label>${t("compressionLevel")}</label><select name="level"><option value="light">${t("light")}</option><option value="medium" selected>${t("medium")}</option><option value="strong">${t("strong")}</option></select></div>
+      </div>
+      <p class="field-help">${icon("info", 15)} ${t("qualityMayChange")}</p>
+    `;
+  }
+  if (route === "images-to-pdf") {
+    return `
+      <div class="tool-options-grid">
+        <div class="field"><label>${t("pageSize")}</label><select name="pageSize"><option value="a4">A4</option><option value="letter">Letter</option><option value="image">${t("sameAsImage")}</option></select></div>
+        <div class="field"><label>${t("orientation")}</label><select name="orientation"><option value="portrait">${t("portrait")}</option><option value="landscape">${t("landscape")}</option></select></div>
+        <div class="field"><label>${t("margins")}</label><select name="margin"><option value="0">${t("noMargin")}</option><option value="24" selected>${t("smallMargin")}</option><option value="48">${t("mediumMargin")}</option></select></div>
+        <label class="check-field"><input name="compressImages" type="checkbox" checked> ${t("optionalImageCompression")}</label>
+      </div>
+    `;
+  }
+  if (route === "pdf-to-images") {
+    return `
+      <div class="tool-options-grid">
+        ${pageSelect}
+        <div class="field"><label>${t("quality")}</label><select name="quality"><option value="0.9">${t("low")}</option><option value="1.35" selected>${t("medium")}</option><option value="2">${t("high")}</option></select></div>
+        <div class="field"><label>${t("outputFormat")}</label><select name="format"><option value="png">PNG</option><option value="jpeg">JPG</option></select></div>
+      </div>
+    `;
+  }
+  if (route === "sign-pdf") {
+    return `
+      <div class="signature-grid">
+        <div>
+          <label>${t("drawSignature")}</label>
+          <canvas id="signatureCanvas" class="signature-pad" width="560" height="180"></canvas>
+          <div class="tool-actions-row small"><button type="button" class="button secondary" id="clearSignature">${t("clearSignature")}</button></div>
+        </div>
+        <div class="tool-options-grid stacked">
+          <div class="field"><label>${t("uploadSignature")}</label><input name="signatureImage" type="file" accept="image/png,image/jpeg"></div>
+          <div class="field"><label>${t("signaturePage")}</label><input name="page" type="number" min="1" value="1"></div>
+          <div class="field"><label>${t("signatureSize")}</label><input name="size" type="range" min="80" max="320" value="180"></div>
+          <div class="field"><label>X</label><input name="x" type="number" min="0" value="80"></div>
+          <div class="field"><label>Y</label><input name="y" type="number" min="0" value="80"></div>
+        </div>
+      </div>
+    `;
+  }
+  if (route === "rotate-pdf") {
+    return `
+      <div class="tool-options-grid">
+        ${pageSelect}
+        <div class="field"><label>${t("rotation")}</label><select name="angle"><option value="90">${t("rotateRight")}</option><option value="-90">${t("rotateLeft")}</option><option value="180">180°</option></select></div>
+      </div>
+    `;
+  }
+  if (route === "page-numbers") {
+    return `
+      <div class="tool-options-grid">
+        <div class="field"><label>${t("pageNumberPosition")}</label><select name="position"><option value="bottom-right">أسفل يمين / Bottom right</option><option value="bottom-center">أسفل وسط / Bottom center</option><option value="bottom-left">أسفل يسار / Bottom left</option><option value="top-right">أعلى يمين / Top right</option><option value="top-center">أعلى وسط / Top center</option><option value="top-left">أعلى يسار / Top left</option></select></div>
+        <div class="field"><label>${t("numberingStart")}</label><input name="start" type="number" min="0" value="1"></div>
+        <div class="field"><label>${t("fontSize")}</label><input name="fontSize" type="number" min="8" max="72" value="12"></div>
+        <div class="field"><label>${t("textColor")}</label><input name="color" type="color" value="#153232"></div>
+        <div class="field"><label>${t("numberFormat")}</label><select name="format"><option value="number">1</option><option value="page">Page 1</option><option value="seite">Seite 1</option><option value="total">1 / 10</option></select></div>
+      </div>
+    `;
+  }
+  if (route === "watermark-pdf") {
+    return `
+      <div class="tool-options-grid">
+        <div class="field"><label>${t("watermarkText")}</label><input name="text" type="text" value="COPY" list="watermarkExamples"><datalist id="watermarkExamples"><option value="COPY"><option value="ENTWURF"><option value="VERTRAULICH"><option value="KOPIE"></datalist></div>
+        <div class="field"><label>${t("watermarkImage")}</label><input name="watermarkImage" type="file" accept="image/png,image/jpeg"></div>
+        <div class="field"><label>${t("opacity")}</label><input name="opacity" type="range" min="0.08" max="0.7" step="0.02" value="0.18"></div>
+        <div class="field"><label>${t("rotation")}</label><input name="rotation" type="number" value="-35"></div>
+        <div class="field"><label>${t("position")}</label><select name="position"><option value="center">${t("center")}</option><option value="top">${t("top")}</option><option value="bottom">${t("bottom")}</option><option value="tiled">${t("tiled")}</option></select></div>
+      </div>
+    `;
+  }
+  if (route === "redact-pdf") {
+    return `
+      <p class="warning-note">${icon("info", 17)} ${t("redactWarning")}</p>
+      <div class="tool-options-grid">
+        <div class="field"><label>${t("page")}</label><input name="page" type="number" min="1" value="1"></div>
+        <div class="field"><label>X</label><input name="x" type="number" min="0" value="70"></div>
+        <div class="field"><label>Y</label><input name="y" type="number" min="0" value="120"></div>
+        <div class="field"><label>W</label><input name="w" type="number" min="10" value="220"></div>
+        <div class="field"><label>H</label><input name="h" type="number" min="10" value="42"></div>
+      </div>
+    `;
+  }
+  if (route === "crop-pdf") {
+    return `
+      <div class="tool-options-grid">
+        <div class="field"><label>${t("page")}</label><input name="page" type="number" min="1" value="1"></div>
+        <div class="field"><label>X</label><input name="x" type="number" min="0" value="30"></div>
+        <div class="field"><label>Y</label><input name="y" type="number" min="0" value="30"></div>
+        <div class="field"><label>W</label><input name="w" type="number" min="20" value="500"></div>
+        <div class="field"><label>H</label><input name="h" type="number" min="20" value="720"></div>
+        <label class="check-field"><input name="allPages" type="checkbox"> ${t("applyToAllPages")}</label>
+      </div>
+    `;
+  }
+  if (route === "reorder-pages") {
+    return `<p class="field-help">${icon("info", 15)} ${t("reorderHint")}</p>`;
+  }
+  if (route === "prepare-submission") {
+    return `
+      <div class="tool-options-grid">
+        <div class="field"><label>${t("submissionType")}</label><select name="submissionType">
+          <option value="Jobcenter_Unterlagen.pdf">Jobcenter</option>
+          <option value="Familienkasse_Nachweise.pdf">Familienkasse</option>
+          <option value="Wohngeld_Nachweise.pdf">Wohngeld</option>
+          <option value="Auslaenderbehoerde_Dokumente.pdf">Ausländerbehörde</option>
+          <option value="Schule_Entschuldigung.pdf">Schule</option>
+          <option value="Krankenkasse_Unterlagen.pdf">Krankenkasse</option>
+          <option value="Vermieter_Dokumente.pdf">Vermieter</option>
+          <option value="Unterlagen.pdf">Sonstiges</option>
+        </select></div>
+      </div>
+      <p class="field-help">${t("suggestedFileName")}: <strong id="suggestedSubmissionName">Jobcenter_Unterlagen.pdf</strong></p>
+    `;
+  }
+  return "";
+}
+
+function toolSeoTemplate(tool) {
+  const related = toolsData.filter((item) => item.category === tool.category && item.id !== tool.id).slice(0, 4);
+  return `
+    <div class="tool-seo-card">
+      <h2>${t("howToolWorks")}</h2>
+      <ol>
+        <li>${appState.lang === "de" ? "Datei auswählen oder per Drag & Drop ablegen." : appState.lang === "en" ? "Choose a file or drop it into the upload area." : "اختر ملفاً أو اسحبه إلى منطقة الرفع."}</li>
+        <li>${appState.lang === "de" ? "Optionen prüfen und Verarbeitung starten." : appState.lang === "en" ? "Review options and start processing." : "راجع الخيارات ثم ابدأ المعالجة."}</li>
+        <li>${appState.lang === "de" ? "Ergebnis herunterladen und prüfen." : appState.lang === "en" ? "Download and verify the result." : "حمّل النتيجة وافحصها."}</li>
+      </ol>
+    </div>
+    <div class="tool-seo-card">
+      <h2>${t("faq")}</h2>
+      <details open><summary>${t("clientPrivacyNotice")}</summary><p>${t("clientPrivacyNotice")}</p></details>
+      <details><summary>${t("qualityMayChange")}</summary><p>${t("qualityMayChange")}</p></details>
+    </div>
+    <div class="tool-seo-card">
+      <h2>${t("similarTools")}</h2>
+      <div class="mini-tool-links">${related.map((item) => routeLink(item.route, localText(item.title), "mini-tool-link")).join("")}</div>
+    </div>
+  `;
+}
+
+function bindToolsSearchEvents() {
+  const input = document.querySelector("#toolsSearchInput");
+  const results = document.querySelector("#toolResultsGrid");
+  const filterRow = document.querySelector("#toolFilterRow");
+  if (!input || !results) return;
+  let activeCategory = "all";
+  const renderResults = () => {
+    const query = input.value || "";
+    results.innerHTML = renderToolCards(getFilteredTools(query, activeCategory));
+  };
+  input.addEventListener("input", renderResults);
+  filterRow?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-category]");
+    if (!button) return;
+    activeCategory = button.dataset.category || "all";
+    filterRow.querySelectorAll(".tool-filter").forEach((item) => item.classList.toggle("active", item === button));
+    renderResults();
+  });
+}
+
+function bindPdfToolEvents() {
+  const form = document.querySelector("#pdfToolForm");
+  if (!form) return;
+  const input = document.querySelector("#pdfToolFile");
+  const dropZone = document.querySelector("#pdfToolDropZone");
+  const downloadButton = document.querySelector("#pdfToolDownload");
+  const signatureInput = form.querySelector('[name="signatureImage"]');
+  const watermarkInput = form.querySelector('[name="watermarkImage"]');
+  const typeSelect = form.querySelector('[name="submissionType"]');
+  input?.addEventListener("change", () => handlePdfToolFiles(Array.from(input.files || [])));
+  dropZone?.addEventListener("dragover", (event) => {
+    event.preventDefault();
+    dropZone.classList.add("drag-over");
+  });
+  dropZone?.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
+  dropZone?.addEventListener("drop", (event) => {
+    event.preventDefault();
+    dropZone.classList.remove("drag-over");
+    handlePdfToolFiles(Array.from(event.dataTransfer?.files || []));
+  });
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    processCurrentPdfTool(new FormData(form));
+  });
+  downloadButton?.addEventListener("click", downloadPdfToolResult);
+  typeSelect?.addEventListener("change", () => setText("#suggestedSubmissionName", typeSelect.value));
+  signatureInput?.addEventListener("change", async () => {
+    const file = signatureInput.files?.[0];
+    if (file) pdfToolState.signatureDataUrl = await fileToDataUrl(file);
+  });
+  watermarkInput?.addEventListener("change", async () => {
+    const file = watermarkInput.files?.[0];
+    if (file) pdfToolState.watermarkImageDataUrl = await fileToDataUrl(file);
+  });
+  setupSignaturePad();
+}
+
+function resetPdfToolResult() {
+  pdfToolState.resultBytes = null;
+  pdfToolState.resultName = "";
+  pdfToolState.renderedImages = [];
+  document.querySelector("#pdfToolDownload")?.setAttribute("disabled", "");
+  const result = document.querySelector("#pdfToolResult");
+  if (result) {
+    result.hidden = true;
+    result.innerHTML = "";
+  }
+}
+
+async function handlePdfToolFiles(files) {
+  resetPdfToolResult();
+  if (!files.length) return;
+  const route = appState.route;
+  const acceptsImages = ["images-to-pdf", "prepare-submission"].includes(route);
+  const acceptsPdf = route !== "images-to-pdf";
+  const valid = files.filter((file) => {
+    const isPdf = isPdfFile(file);
+    const isImage = isImageFile(file);
+    return (acceptsPdf && isPdf) || (acceptsImages && isImage);
+  });
+  if (!valid.length) {
+    showToast(t("unsupportedFile"), true);
+    return;
+  }
+  if (valid.some((file) => file.size === 0)) {
+    showToast(t("emptyFile"), true);
+    return;
+  }
+  if (valid.some((file) => file.size > 35 * 1024 * 1024)) showToast(t("fileTooLarge"), true);
+  pdfToolState.files = valid;
+  pdfToolState.file = valid[0];
+  pdfToolState.bytes = isPdfFile(valid[0]) ? new Uint8Array(await valid[0].arrayBuffer()) : null;
+  pdfToolState.images.forEach((item) => item.url && URL.revokeObjectURL(item.url));
+  pdfToolState.images = valid.filter(isImageFile).map((file, index) => ({ id: `${Date.now()}-${index}`, file, url: URL.createObjectURL(file) }));
+  pdfToolState.pageThumbs = [];
+  pdfToolState.pageOrder = [];
+  pdfToolState.rotations = {};
+  await renderPdfToolPreview();
+}
+
+async function renderPdfToolPreview() {
+  const preview = document.querySelector("#pdfToolPreview");
+  if (!preview) return;
+  const route = appState.route;
+  if (route === "images-to-pdf") {
+    preview.innerHTML = renderImageList();
+    bindSortableImageList();
+    return;
+  }
+  if (route === "prepare-submission") {
+    preview.innerHTML = renderSubmissionFileList();
+    bindSubmissionFileList();
+    return;
+  }
+  if (!pdfToolState.file || !pdfToolState.bytes) {
+    preview.innerHTML = "";
+    return;
+  }
+  preview.innerHTML = `
+    <div class="file-summary">
+      ${icon("file", 22)}
+      <div><strong>${escapeHtml(pdfToolState.file.name)}</strong><small>${t("fileBefore")}: ${formatBytes(pdfToolState.file.size)}</small></div>
+    </div>
+  `;
+  if (["rotate-pdf", "reorder-pages", "redact-pdf", "crop-pdf", "sign-pdf"].includes(route)) {
+    await renderPdfThumbnailsForTool(route);
+  }
+}
+
+function renderImageList() {
+  if (!pdfToolState.images.length) return "";
+  return `
+    <div class="image-sort-list">
+      ${pdfToolState.images.map((item, index) => `
+        <div class="image-sort-card" draggable="true" data-index="${index}">
+          <img src="${item.url}" alt="">
+          <div><strong>${index + 1}. ${escapeHtml(item.file.name)}</strong><small>${formatBytes(item.file.size)}</small></div>
+          <div class="card-actions">
+            <button type="button" data-move-image="${index}:up">${icon("chevronRight", 16)}</button>
+            <button type="button" data-move-image="${index}:down">${icon("chevronLeft", 16)}</button>
+            <button type="button" data-remove-image="${index}">${icon("trash", 16)}</button>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function bindSortableImageList() {
+  const preview = document.querySelector("#pdfToolPreview");
+  preview?.querySelectorAll("[data-remove-image]").forEach((button) => button.addEventListener("click", () => {
+    const index = Number(button.dataset.removeImage);
+    const [removed] = pdfToolState.images.splice(index, 1);
+    if (removed?.url) URL.revokeObjectURL(removed.url);
+    renderPdfToolPreview();
+  }));
+  preview?.querySelectorAll("[data-move-image]").forEach((button) => button.addEventListener("click", () => {
+    const [rawIndex, direction] = button.dataset.moveImage.split(":");
+    moveArrayItem(pdfToolState.images, Number(rawIndex), direction === "up" ? Number(rawIndex) - 1 : Number(rawIndex) + 1);
+    renderPdfToolPreview();
+  }));
+  preview?.querySelectorAll(".image-sort-card").forEach((card) => {
+    card.addEventListener("dragstart", () => {
+      pdfToolState.activeDragIndex = Number(card.dataset.index);
+    });
+    card.addEventListener("dragover", (event) => event.preventDefault());
+    card.addEventListener("drop", () => {
+      moveArrayItem(pdfToolState.images, pdfToolState.activeDragIndex, Number(card.dataset.index));
+      pdfToolState.activeDragIndex = null;
+      renderPdfToolPreview();
+    });
+  });
+}
+
+function renderSubmissionFileList() {
+  if (!pdfToolState.files.length) return "";
+  return `
+    <div class="image-sort-list">
+      ${pdfToolState.files.map((file, index) => `
+        <div class="image-sort-card" draggable="true" data-submission-index="${index}">
+          <div class="tool-data-icon">${icon(isPdfFile(file) ? "file" : "image", 22)}</div>
+          <div><strong>${index + 1}. ${escapeHtml(file.name)}</strong><small>${formatBytes(file.size)}</small></div>
+          <div class="card-actions">
+            <button type="button" data-move-file="${index}:up">${icon("chevronRight", 16)}</button>
+            <button type="button" data-move-file="${index}:down">${icon("chevronLeft", 16)}</button>
+            <button type="button" data-remove-file="${index}">${icon("trash", 16)}</button>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function bindSubmissionFileList() {
+  const preview = document.querySelector("#pdfToolPreview");
+  preview?.querySelectorAll("[data-remove-file]").forEach((button) => button.addEventListener("click", () => {
+    pdfToolState.files.splice(Number(button.dataset.removeFile), 1);
+    renderPdfToolPreview();
+  }));
+  preview?.querySelectorAll("[data-move-file]").forEach((button) => button.addEventListener("click", () => {
+    const [rawIndex, direction] = button.dataset.moveFile.split(":");
+    moveArrayItem(pdfToolState.files, Number(rawIndex), direction === "up" ? Number(rawIndex) - 1 : Number(rawIndex) + 1);
+    renderPdfToolPreview();
+  }));
+  preview?.querySelectorAll("[data-submission-index]").forEach((card) => {
+    card.addEventListener("dragstart", () => {
+      pdfToolState.activeDragIndex = Number(card.dataset.submissionIndex);
+    });
+    card.addEventListener("dragover", (event) => event.preventDefault());
+    card.addEventListener("drop", () => {
+      moveArrayItem(pdfToolState.files, pdfToolState.activeDragIndex, Number(card.dataset.submissionIndex));
+      pdfToolState.activeDragIndex = null;
+      renderPdfToolPreview();
+    });
+  });
+}
+
+async function renderPdfThumbnailsForTool(route) {
+  const preview = document.querySelector("#pdfToolPreview");
+  if (!preview || !pdfToolState.bytes) return;
+  try {
+    setToolProgress(true);
+    await ensurePdfLibraries();
+    const task = pdfjsLib.getDocument({ data: pdfToolState.bytes.slice(), isOffscreenCanvasSupported: false, isImageDecoderSupported: false });
+    const pdf = await task.promise;
+    const max = route === "reorder-pages" || route === "rotate-pdf" ? pdf.numPages : Math.min(pdf.numPages, 8);
+    const thumbs = [];
+    for (let pageNo = 1; pageNo <= max; pageNo += 1) {
+      const page = await pdf.getPage(pageNo);
+      const viewport = page.getViewport({ scale: 0.22 });
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.floor(viewport.width));
+      canvas.height = Math.max(1, Math.floor(viewport.height));
+      await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
+      thumbs.push({ page: pageNo, url: canvas.toDataURL("image/jpeg", 0.75), width: viewport.width, height: viewport.height });
+    }
+    pdfToolState.pageThumbs = thumbs;
+    if (!pdfToolState.pageOrder.length) pdfToolState.pageOrder = Array.from({ length: pdf.numPages }, (_, index) => index);
+    const cards = thumbs.map((thumb, index) => `
+      <div class="page-thumb-tool" draggable="${route === "reorder-pages"}" data-page-index="${index}">
+        <img src="${thumb.url}" alt="">
+        <strong>${t("page")} ${thumb.page}</strong>
+        ${route === "reorder-pages" ? `<div class="card-actions"><button type="button" data-page-move="${index}:up">${icon("chevronRight", 15)}</button><button type="button" data-page-move="${index}:down">${icon("chevronLeft", 15)}</button><button type="button" data-page-delete="${index}">${icon("trash", 15)}</button><button type="button" data-page-rotate="${index}">${icon("redo", 15)}</button></div>` : ""}
+      </div>
+    `).join("");
+    preview.insertAdjacentHTML("beforeend", `<div class="page-thumb-grid">${cards}</div>`);
+    bindReorderPageControls();
+  } catch (error) {
+    console.error(error);
+    showToast(t("pdfError"), true);
+  } finally {
+    setToolProgress(false);
+  }
+}
+
+function bindReorderPageControls() {
+  if (appState.route !== "reorder-pages") return;
+  const preview = document.querySelector("#pdfToolPreview");
+  preview?.querySelectorAll("[data-page-delete]").forEach((button) => button.addEventListener("click", () => {
+    const index = Number(button.dataset.pageDelete);
+    pdfToolState.pageOrder.splice(index, 1);
+    pdfToolState.pageThumbs.splice(index, 1);
+    renderPdfToolPreview();
+  }));
+  preview?.querySelectorAll("[data-page-rotate]").forEach((button) => button.addEventListener("click", () => {
+    const index = Number(button.dataset.pageRotate);
+    const original = pdfToolState.pageOrder[index];
+    pdfToolState.rotations[original] = ((pdfToolState.rotations[original] || 0) + 90) % 360;
+    showToast(`${t("page")} ${index + 1}: ${pdfToolState.rotations[original]}°`);
+  }));
+  preview?.querySelectorAll("[data-page-move]").forEach((button) => button.addEventListener("click", () => {
+    const [rawIndex, direction] = button.dataset.pageMove.split(":");
+    const index = Number(rawIndex);
+    const next = direction === "up" ? index - 1 : index + 1;
+    moveArrayItem(pdfToolState.pageOrder, index, next);
+    moveArrayItem(pdfToolState.pageThumbs, index, next);
+    renderPdfToolPreview();
+  }));
+}
+
+async function processCurrentPdfTool(formData) {
+  const route = appState.route;
+  if (!pdfToolState.files.length && !pdfToolState.file) {
+    showToast(t("noPdf"), true);
+    return;
+  }
+  setToolProgress(true);
+  try {
+    await ensurePdfLibraries();
+    const handlers = {
+      "compress-pdf": processCompressPdf,
+      "images-to-pdf": processImagesToPdf,
+      "pdf-to-images": processPdfToImages,
+      "sign-pdf": processSignPdf,
+      "rotate-pdf": processRotatePdf,
+      "page-numbers": processPageNumbers,
+      "watermark-pdf": processWatermarkPdf,
+      "redact-pdf": processRedactPdf,
+      "crop-pdf": processCropPdf,
+      "reorder-pages": processReorderPages,
+      "prepare-submission": processPrepareSubmission,
+    };
+    await handlers[route]?.(formData);
+    showPdfToolResult();
+    showToast(t("done"));
+  } catch (error) {
+    console.error(error);
+    showToast(t("pdfError"), true);
+  } finally {
+    setToolProgress(false);
+  }
+}
+
+async function processCompressPdf(formData) {
+  const level = formData.get("level") || "medium";
+  if (level === "light") {
+    const pdfDoc = await PDFDocument.load(pdfToolState.bytes.slice());
+    pdfToolState.resultBytes = new Uint8Array(await pdfDoc.save({ useObjectStreams: true }));
+  } else {
+    pdfToolState.resultBytes = await rasterizePdfToPdf(pdfToolState.bytes, level === "strong" ? 0.58 : 0.76, level === "strong" ? 0.95 : 1.15);
+  }
+  pdfToolState.resultName = withSuffix(pdfToolState.file.name, "compressed");
+}
+
+async function processImagesToPdf(formData) {
+  await ensurePdfLibraries();
+  const pdf = await PDFDocument.create();
+  const pageSize = formData.get("pageSize");
+  const orientation = formData.get("orientation");
+  const margin = Number(formData.get("margin") || 0);
+  const compress = formData.get("compressImages") === "on";
+  for (const item of pdfToolState.images) {
+    const imageData = await normalizeImageForPdf(item.file, compress ? 0.78 : 0.94);
+    const embedded = imageData.kind === "jpg" ? await pdf.embedJpg(imageData.bytes) : await pdf.embedPng(imageData.bytes);
+    const dims = embedded.scale(1);
+    let width = dims.width;
+    let height = dims.height;
+    if (pageSize !== "image") {
+      [width, height] = pageSize === "letter" ? [612, 792] : [595.28, 841.89];
+      if (orientation === "landscape") [width, height] = [height, width];
+    }
+    const page = pdf.addPage([width, height]);
+    const availableW = Math.max(20, width - margin * 2);
+    const availableH = Math.max(20, height - margin * 2);
+    const scale = Math.min(availableW / dims.width, availableH / dims.height);
+    const drawW = dims.width * scale;
+    const drawH = dims.height * scale;
+    page.drawImage(embedded, { x: (width - drawW) / 2, y: (height - drawH) / 2, width: drawW, height: drawH });
+  }
+  pdfToolState.resultBytes = new Uint8Array(await pdf.save());
+  pdfToolState.resultName = "images-to-pdf.pdf";
+}
+
+async function processPdfToImages(formData) {
+  await ensurePdfLibraries();
+  const format = formData.get("format") || "png";
+  const scale = Number(formData.get("quality") || 1.35);
+  const task = pdfjsLib.getDocument({ data: pdfToolState.bytes.slice(), isOffscreenCanvasSupported: false, isImageDecoderSupported: false });
+  const pdf = await task.promise;
+  const pages = parsePageSelection(String(formData.get("pages") || ""), pdf.numPages);
+  pdfToolState.renderedImages = [];
+  for (const pageNo of pages) {
+    const page = await pdf.getPage(pageNo);
+    const viewport = page.getViewport({ scale });
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.floor(viewport.width);
+    canvas.height = Math.floor(viewport.height);
+    await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
+    const blob = await toolCanvasToBlob(canvas, format === "jpeg" ? "image/jpeg" : "image/png", 0.92);
+    pdfToolState.renderedImages.push({ blob, name: `${baseFileName(pdfToolState.file.name)}-page-${pageNo}.${format === "jpeg" ? "jpg" : "png"}`, url: URL.createObjectURL(blob) });
+  }
+  pdfToolState.resultName = "pdf-images";
+}
+
+async function processSignPdf(formData) {
+  await ensurePdfLibraries();
+  const pdf = await PDFDocument.load(pdfToolState.bytes.slice());
+  const pageIndex = clamp(Number(formData.get("page") || 1) - 1, 0, pdf.getPageCount() - 1);
+  const page = pdf.getPage(pageIndex);
+  const signature = pdfToolState.signatureDataUrl || document.querySelector("#signatureCanvas")?.toDataURL("image/png");
+  if (!signature) throw new Error("No signature");
+  const image = await pdf.embedPng(signature);
+  const size = Number(formData.get("size") || 180);
+  const dims = image.scale(size / image.width);
+  page.drawImage(image, { x: Number(formData.get("x") || 80), y: Number(formData.get("y") || 80), width: dims.width, height: dims.height });
+  pdfToolState.resultBytes = new Uint8Array(await pdf.save());
+  pdfToolState.resultName = withSuffix(pdfToolState.file.name, "signed");
+}
+
+async function processRotatePdf(formData) {
+  await ensurePdfLibraries();
+  const pdf = await PDFDocument.load(pdfToolState.bytes.slice());
+  const angle = Number(formData.get("angle") || 90);
+  const selected = parsePageSelection(String(formData.get("pages") || ""), pdf.getPageCount());
+  selected.forEach((pageNo) => {
+    const page = pdf.getPage(pageNo - 1);
+    page.setRotation(degrees(normalizeAngle((page.getRotation().angle || 0) + angle)));
+  });
+  pdfToolState.resultBytes = new Uint8Array(await pdf.save());
+  pdfToolState.resultName = withSuffix(pdfToolState.file.name, "rotated");
+}
+
+async function processPageNumbers(formData) {
+  await ensurePdfLibraries();
+  const pdf = await PDFDocument.load(pdfToolState.bytes.slice());
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+  const start = Number(formData.get("start") || 1);
+  const size = Number(formData.get("fontSize") || 12);
+  const color = hexToPdfRgb(String(formData.get("color") || "#153232"));
+  const format = formData.get("format") || "number";
+  const position = formData.get("position") || "bottom-right";
+  const total = pdf.getPageCount();
+  pdf.getPages().forEach((page, index) => {
+    const n = start + index;
+    const text = format === "page" ? `Page ${n}` : format === "seite" ? `Seite ${n}` : format === "total" ? `${n} / ${total}` : `${n}`;
+    const { width, height } = page.getSize();
+    const textWidth = font.widthOfTextAtSize(text, size);
+    const x = position.endsWith("center") ? (width - textWidth) / 2 : position.endsWith("left") ? 34 : width - textWidth - 34;
+    const y = position.startsWith("top") ? height - 34 : 24;
+    page.drawText(text, { x, y, size, font, color });
+  });
+  pdfToolState.resultBytes = new Uint8Array(await pdf.save());
+  pdfToolState.resultName = withSuffix(pdfToolState.file.name, "numbered");
+}
+
+async function processWatermarkPdf(formData) {
+  await ensurePdfLibraries();
+  const pdf = await PDFDocument.load(pdfToolState.bytes.slice());
+  const opacity = Number(formData.get("opacity") || 0.18);
+  const rotation = Number(formData.get("rotation") || -35);
+  const position = formData.get("position") || "center";
+  const text = String(formData.get("text") || "COPY");
+  const font = await pdf.embedFont(StandardFonts.HelveticaBold);
+  let image = null;
+  if (pdfToolState.watermarkImageDataUrl) {
+    image = pdfToolState.watermarkImageDataUrl.startsWith("data:image/png") ? await pdf.embedPng(pdfToolState.watermarkImageDataUrl) : await pdf.embedJpg(pdfToolState.watermarkImageDataUrl);
+  }
+  pdf.getPages().forEach((page) => {
+    const { width, height } = page.getSize();
+    const spots = position === "tiled"
+      ? [[width * .2, height * .25], [width * .58, height * .5], [width * .25, height * .75]]
+      : position === "top" ? [[width * .5, height * .78]] : position === "bottom" ? [[width * .5, height * .22]] : [[width * .5, height * .5]];
+    spots.forEach(([x, y]) => {
+      if (image) {
+        const dims = image.scale(Math.min(width, height) * 0.35 / image.width);
+        page.drawImage(image, { x: x - dims.width / 2, y: y - dims.height / 2, width: dims.width, height: dims.height, opacity, rotate: degrees(rotation) });
+      } else {
+        const size = Math.max(38, Math.min(width, height) / 7);
+        page.drawText(text, { x: x - font.widthOfTextAtSize(text, size) / 2, y, size, font, color: rgb(0.08, 0.2, 0.2), opacity, rotate: degrees(rotation) });
+      }
+    });
+  });
+  pdfToolState.resultBytes = new Uint8Array(await pdf.save());
+  pdfToolState.resultName = withSuffix(pdfToolState.file.name, "watermark");
+}
+
+async function processRedactPdf(formData) {
+  await ensurePdfLibraries();
+  const pdf = await PDFDocument.load(pdfToolState.bytes.slice());
+  const pageIndex = clamp(Number(formData.get("page") || 1) - 1, 0, pdf.getPageCount() - 1);
+  const page = pdf.getPage(pageIndex);
+  page.drawRectangle({ x: Number(formData.get("x") || 70), y: Number(formData.get("y") || 120), width: Number(formData.get("w") || 220), height: Number(formData.get("h") || 42), color: rgb(0, 0, 0) });
+  pdfToolState.resultBytes = new Uint8Array(await pdf.save());
+  pdfToolState.resultName = withSuffix(pdfToolState.file.name, "redacted");
+}
+
+async function processCropPdf(formData) {
+  await ensurePdfLibraries();
+  const pdf = await PDFDocument.load(pdfToolState.bytes.slice());
+  const targets = formData.get("allPages") === "on" ? pdf.getPages().map((_, index) => index) : [clamp(Number(formData.get("page") || 1) - 1, 0, pdf.getPageCount() - 1)];
+  targets.forEach((pageIndex) => {
+    const page = pdf.getPage(pageIndex);
+    const { width, height } = page.getSize();
+    const x = clamp(Number(formData.get("x") || 0), 0, width - 20);
+    const y = clamp(Number(formData.get("y") || 0), 0, height - 20);
+    const w = clamp(Number(formData.get("w") || width - x), 20, width - x);
+    const h = clamp(Number(formData.get("h") || height - y), 20, height - y);
+    page.setCropBox(x, y, w, h);
+  });
+  pdfToolState.resultBytes = new Uint8Array(await pdf.save());
+  pdfToolState.resultName = withSuffix(pdfToolState.file.name, "cropped");
+}
+
+async function processReorderPages() {
+  await ensurePdfLibraries();
+  const source = await PDFDocument.load(pdfToolState.bytes.slice());
+  const output = await PDFDocument.create();
+  const order = pdfToolState.pageOrder.length ? pdfToolState.pageOrder : source.getPageIndices();
+  const copied = await output.copyPages(source, order);
+  copied.forEach((page, newIndex) => {
+    const originalIndex = order[newIndex];
+    if (pdfToolState.rotations[originalIndex]) page.setRotation(degrees(pdfToolState.rotations[originalIndex]));
+    output.addPage(page);
+  });
+  pdfToolState.resultBytes = new Uint8Array(await output.save());
+  pdfToolState.resultName = withSuffix(pdfToolState.file.name, "reordered");
+}
+
+async function processPrepareSubmission(formData) {
+  await ensurePdfLibraries();
+  const output = await PDFDocument.create();
+  for (const file of pdfToolState.files) {
+    if (isPdfFile(file)) {
+      const source = await PDFDocument.load(new Uint8Array(await file.arrayBuffer()));
+      const copied = await output.copyPages(source, source.getPageIndices());
+      copied.forEach((page) => output.addPage(page));
+    } else if (isImageFile(file)) {
+      const imageData = await normalizeImageForPdf(file, 0.76);
+      const embedded = imageData.kind === "jpg" ? await output.embedJpg(imageData.bytes) : await output.embedPng(imageData.bytes);
+      const page = output.addPage([595.28, 841.89]);
+      const dims = embedded.scale(Math.min(535 / embedded.width, 780 / embedded.height));
+      page.drawImage(embedded, { x: (595.28 - dims.width) / 2, y: (841.89 - dims.height) / 2, width: dims.width, height: dims.height });
+    }
+  }
+  pdfToolState.resultBytes = new Uint8Array(await output.save({ useObjectStreams: true }));
+  pdfToolState.resultName = String(formData.get("submissionType") || "Unterlagen.pdf");
+}
+
+async function rasterizePdfToPdf(bytes, quality = 0.76, scale = 1.1) {
+  await ensurePdfLibraries();
+  const task = pdfjsLib.getDocument({ data: bytes.slice(), isOffscreenCanvasSupported: false, isImageDecoderSupported: false });
+  const source = await task.promise;
+  const output = await PDFDocument.create();
+  for (let pageNo = 1; pageNo <= source.numPages; pageNo += 1) {
+    const page = await source.getPage(pageNo);
+    const viewport = page.getViewport({ scale });
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.floor(viewport.width);
+    canvas.height = Math.floor(viewport.height);
+    await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
+    const jpg = await canvasToBytes(canvas, "image/jpeg", quality);
+    const embedded = await output.embedJpg(jpg);
+    const pdfPage = output.addPage([viewport.width, viewport.height]);
+    pdfPage.drawImage(embedded, { x: 0, y: 0, width: viewport.width, height: viewport.height });
+  }
+  return new Uint8Array(await output.save({ useObjectStreams: true }));
+}
+
+function showPdfToolResult() {
+  const result = document.querySelector("#pdfToolResult");
+  const downloadButton = document.querySelector("#pdfToolDownload");
+  if (!result) return;
+  if (pdfToolState.renderedImages.length) {
+    result.hidden = false;
+    result.innerHTML = `
+      <div class="result-summary">${icon("check", 20)} <strong>${t("done")}</strong></div>
+      <div class="image-result-grid">${pdfToolState.renderedImages.map((item) => `<a class="image-result" href="${item.url}" download="${item.name}"><img src="${item.url}" alt=""><span>${item.name}</span></a>`).join("")}</div>
+    `;
+    downloadButton?.removeAttribute("disabled");
+    return;
+  }
+  if (!pdfToolState.resultBytes) return;
+  const before = pdfToolState.file?.size ? `<span>${t("fileBefore")}: ${formatBytes(pdfToolState.file.size)}</span>` : "";
+  const after = `<span>${t("fileAfter")}: ${formatBytes(pdfToolState.resultBytes.byteLength)}</span>`;
+  result.hidden = false;
+  result.innerHTML = `<div class="result-summary">${icon("check", 20)} <strong>${t("done")}</strong>${before}${after}</div>`;
+  downloadButton?.removeAttribute("disabled");
+}
+
+function downloadPdfToolResult() {
+  if (pdfToolState.renderedImages.length) {
+    pdfToolState.renderedImages.forEach((item, index) => {
+      setTimeout(() => downloadBlob(item.blob, item.name), index * 180);
+    });
+    return;
+  }
+  if (!pdfToolState.resultBytes) {
+    showToast(t("noPdf"), true);
+    return;
+  }
+  downloadBlob(new Blob([pdfToolState.resultBytes], { type: "application/pdf" }), pdfToolState.resultName || "document.pdf");
+}
+
+function setToolProgress(show) {
+  const progress = document.querySelector("#pdfToolProgress");
+  if (progress) progress.hidden = !show;
+}
+
+function setupSignaturePad() {
+  const canvas = document.querySelector("#signatureCanvas");
+  if (!canvas) return;
+  const context = canvas.getContext("2d");
+  context.lineWidth = 3;
+  context.lineCap = "round";
+  context.strokeStyle = "#153232";
+  let drawing = false;
+  const pos = (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const pointer = event.touches?.[0] || event;
+    return { x: (pointer.clientX - rect.left) * (canvas.width / rect.width), y: (pointer.clientY - rect.top) * (canvas.height / rect.height) };
+  };
+  const start = (event) => {
+    event.preventDefault();
+    drawing = true;
+    const p = pos(event);
+    context.beginPath();
+    context.moveTo(p.x, p.y);
+  };
+  const move = (event) => {
+    if (!drawing) return;
+    event.preventDefault();
+    const p = pos(event);
+    context.lineTo(p.x, p.y);
+    context.stroke();
+  };
+  const end = () => {
+    drawing = false;
+    pdfToolState.signatureDataUrl = canvas.toDataURL("image/png");
+  };
+  canvas.addEventListener("mousedown", start);
+  canvas.addEventListener("mousemove", move);
+  window.addEventListener("mouseup", end);
+  canvas.addEventListener("touchstart", start, { passive: false });
+  canvas.addEventListener("touchmove", move, { passive: false });
+  canvas.addEventListener("touchend", end);
+  document.querySelector("#clearSignature")?.addEventListener("click", () => {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    pdfToolState.signatureDataUrl = "";
+  });
+}
+
+function parsePageSelection(value, total) {
+  if (!value.trim()) return Array.from({ length: total }, (_, index) => index + 1);
+  const pages = new Set();
+  value.split(",").forEach((part) => {
+    const [start, end] = part.trim().split("-").map((item) => Number(item));
+    if (Number.isInteger(start) && Number.isInteger(end)) {
+      for (let page = start; page <= end; page += 1) if (page >= 1 && page <= total) pages.add(page);
+    } else if (Number.isInteger(start) && start >= 1 && start <= total) {
+      pages.add(start);
+    }
+  });
+  return pages.size ? [...pages].sort((a, b) => a - b) : Array.from({ length: total }, (_, index) => index + 1);
+}
+
+async function normalizeImageForPdf(file, quality = 0.9) {
+  if (file.type === "image/png") return { kind: "png", bytes: new Uint8Array(await file.arrayBuffer()) };
+  return { kind: "jpg", bytes: await imageFileToJpegBytes(file, quality) };
+}
+
+async function imageFileToJpegBytes(file, quality = 0.9) {
+  const dataUrl = await fileToDataUrl(file);
+  const image = await loadImage(dataUrl);
+  const canvas = document.createElement("canvas");
+  canvas.width = image.naturalWidth || image.width;
+  canvas.height = image.naturalHeight || image.height;
+  const context = canvas.getContext("2d");
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.drawImage(image, 0, 0);
+  return canvasToBytes(canvas, "image/jpeg", quality);
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
+}
+
+function toolCanvasToBlob(canvas, type, quality) {
+  return new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), type, quality));
+}
+
+async function canvasToBytes(canvas, type, quality) {
+  const blob = await toolCanvasToBlob(canvas, type, quality);
+  return new Uint8Array(await blob.arrayBuffer());
+}
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function isPdfFile(file) {
+  return file?.type === "application/pdf" || /\.pdf$/i.test(file?.name || "");
+}
+
+function isImageFile(file) {
+  return /^image\/(jpeg|png|webp)$/i.test(file?.type || "") || /\.(jpe?g|png|webp)$/i.test(file?.name || "");
+}
+
+function formatBytes(bytes = 0) {
+  if (!bytes) return "0 B";
+  const units = ["B", "KB", "MB", "GB"];
+  const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  return `${(bytes / 1024 ** index).toFixed(index ? 2 : 0)} ${units[index]}`;
+}
+
+function baseFileName(name = "document.pdf") {
+  return name.replace(/\.[^.]+$/, "") || "document";
+}
+
+function withSuffix(name, suffix) {
+  return `${baseFileName(name)}-${suffix}.pdf`;
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, Number.isFinite(value) ? value : min));
+}
+
+function normalizeAngle(value) {
+  return ((value % 360) + 360) % 360;
+}
+
+function moveArrayItem(array, from, to) {
+  if (!array.length || from === to || from < 0 || from >= array.length || to < 0 || to >= array.length) return;
+  const [item] = array.splice(from, 1);
+  array.splice(to, 0, item);
+}
+
+function hexToPdfRgb(hex) {
+  const normalized = String(hex).replace("#", "");
+  const value = Number.parseInt(normalized, 16);
+  return rgb(((value >> 16) & 255) / 255, ((value >> 8) & 255) / 255, (value & 255) / 255);
 }
 
 function editorTemplate() {
@@ -1786,13 +3110,14 @@ async function renderApp() {
   const routes = {
     home: homeTemplate,
     editor: editorTemplate,
+    tools: toolsTemplate,
     qr: qrTemplate,
     "image-qr-code": imageQrTemplate,
     "view-image": viewImageTemplate,
     privacy: privacyTemplate,
     contact: contactTemplate,
   };
-  const page = routes[appState.route] || routes.home;
+  const page = routes[appState.route] || (pdfToolRoutes.includes(appState.route) ? pdfToolTemplate : routes.home);
   app.innerHTML = `<div class="app-shell">${headerTemplate()}${page()}${footerTemplate()}<div class="toast" id="toast"></div></div>`;
   bindGlobalEvents();
   initAdsenseSlots();
@@ -1804,6 +3129,8 @@ async function renderApp() {
     }
   }
   if (appState.route === "qr") bindSmartQrEvents();
+  if (appState.route === "home" || appState.route === "tools") bindToolsSearchEvents();
+  if (pdfToolRoutes.includes(appState.route)) bindPdfToolEvents();
   if (appState.route === "image-qr-code") bindImageQrEvents();
   if (appState.route === "view-image") loadViewImage();
   if (appState.route === "contact") bindContactEvents();
@@ -1838,7 +3165,10 @@ function updatePageMeta() {
       contact: ["Contact — PDF & QR Tools", "Send questions and suggestions about our PDF and QR tools."],
     },
   };
-  const [title, description] = content[appState.lang]?.[appState.route] || content[appState.lang]?.home || content.en.home;
+  const activeTool = getToolByRoute();
+  const [title, description] = activeTool
+    ? [`${localText(activeTool.title)} — PDF & QR Tools`, localText(activeTool.description)]
+    : content[appState.lang]?.[appState.route] || content[appState.lang]?.home || content.en.home;
   document.title = title;
   const descriptionMeta = document.querySelector('meta[name="description"]');
   const ogTitle = document.querySelector('meta[property="og:title"]');
