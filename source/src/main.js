@@ -880,6 +880,7 @@ Object.assign(runtimeTranslations.ar, {
   profileUrl: "\u0631\u0627\u0628\u0637 \u0627\u0644\u062d\u0633\u0627\u0628",
   barcodeValue: "\u0642\u064a\u0645\u0629 Barcode",
   barcodeFormat: "\u0646\u0648\u0639 Barcode",
+  phoneFormatHint: "\u0627\u0643\u062a\u0628 \u0627\u0644\u0631\u0642\u0645 \u0645\u0639 \u0631\u0645\u0632 \u0627\u0644\u062f\u0648\u0644\u0629 \u0645\u062b\u0644 +49 152 12345678 \u0623\u0648 0049 152 12345678\u060c \u0648\u0633\u064a\u062a\u0645 \u062a\u0646\u0638\u064a\u0641 \u0627\u0644\u0645\u0633\u0627\u0641\u0627\u062a \u0648\u0627\u0644\u0623\u0642\u0648\u0627\u0633 \u0648\u0627\u0644\u0634\u0631\u0637\u0627\u062a \u062a\u0644\u0642\u0627\u0626\u064a\u064b\u0627.",
   qrWithLogo: "QR \u0645\u0639 Logo",
   uploadLogo: "\u0631\u0641\u0639 Logo",
   logoSize: "\u062d\u062c\u0645 \u0627\u0644\u0644\u0648\u063a\u0648",
@@ -929,6 +930,7 @@ Object.assign(runtimeTranslations.de, {
   recipient: "Empf\u00e4nger", iban: "IBAN", bic: "BIC / SWIFT", paymentReason: "Verwendungszweck", smsMessage: "SMS-Nachricht",
   eventTitle: "Termintitel", eventStart: "Beginn", eventEnd: "Ende", location: "Ort", socialPlatform: "Plattform",
   profileUrl: "Profil-Link", barcodeValue: "Barcode-Wert", barcodeFormat: "Barcode-Format", qrWithLogo: "QR mit Logo",
+  phoneFormatHint: "Nummer mit L\u00e4ndervorwahl eingeben, z. B. +49 152 12345678 oder 0049 152 12345678. Leerzeichen, Klammern und Bindestriche werden automatisch bereinigt.",
   uploadLogo: "Logo hochladen", logoSize: "Logogr\u00f6\u00dfe", logoWarning: "Ein zu gro\u00dfes Logo kann den QR-Code unlesbar machen. Empfohlen sind 15\u201320 %.",
   printSize: "Druckformat", size3cm: "3\u00d73 cm", size5cm: "5\u00d75 cm", size10cm: "10\u00d710 cm",
   a4Multiple: "A4 \u2014 mehrere QR-Codes", businessCard: "Visitenkarte", tableCard: "Restaurant-Tischkarte", downloadPrintPdf: "PDF herunterladen",
@@ -965,6 +967,7 @@ Object.assign(runtimeTranslations.en, {
   iban: "IBAN", bic: "BIC / SWIFT", paymentReason: "Payment reason", smsMessage: "SMS message", eventTitle: "Event title",
   eventStart: "Start", eventEnd: "End", location: "Location", socialPlatform: "Platform", profileUrl: "Profile URL",
   barcodeValue: "Barcode value", barcodeFormat: "Barcode format", qrWithLogo: "QR with Logo", uploadLogo: "Upload logo",
+  phoneFormatHint: "Enter the number with country code, e.g. +49 152 12345678 or 0049 152 12345678. Spaces, brackets and dashes are cleaned automatically.",
   logoSize: "Logo size", logoWarning: "A large logo can make the QR code impossible to scan. Keep it around 15\u201320%.",
   printSize: "Print size", size3cm: "3\u00d73 cm", size5cm: "5\u00d75 cm", size10cm: "10\u00d710 cm",
   a4Multiple: "A4 sheet \u2014 multiple QR codes", businessCard: "Business card", tableCard: "Restaurant table card", downloadPrintPdf: "Download PDF",
@@ -1565,16 +1568,16 @@ function qrSelect(name, label, options) {
 function qrFieldsTemplate() {
   switch (appState.qrType) {
     case "wifi": return `${qrField("ssid", t("networkName"))}${qrField("password", t("wifiPassword"), "text", { required: false })}${qrSelect("encryption", t("encryption"), [["WPA", "WPA/WPA2"], ["WEP", "WEP"], ["nopass", "Open"]])}<label class="check-field"><input name="hidden" type="checkbox"> ${t("hiddenNetwork")}</label>`;
-    case "vcard": return `${qrField("name", t("fullName"))}${qrField("organization", t("organization"), "text", { required: false })}${qrField("phone", t("phone"), "tel")}${qrField("email", t("email"), "email", { required: false })}${qrField("url", t("url"), "url", { required: false })}${qrField("address", t("address"), "text", { required: false, full: true })}`;
+    case "vcard": return `${qrField("name", t("fullName"))}${qrField("organization", t("organization"), "text", { required: false })}${qrField("phone", t("phone"), "tel")}${qrField("email", t("email"), "email", { required: false })}${qrField("url", t("url"), "url", { required: false })}${qrField("address", t("address"), "text", { required: false, full: true })}<div class="field-help full">${icon("info", 14)} ${t("phoneFormatHint")}</div>`;
     case "maps": return qrField("place", t("mapsPlace"), "text", { full: true });
     case "menu": return qrField("url", t("menuUrl"), "url", { full: true });
     case "paypal": return `${qrField("email", t("paypalAccount"), "email")}${qrField("amount", t("amount"), "number", { required: false, extra: 'min="0" step="0.01"' })}${qrSelect("currency", t("currency"), [["EUR", "EUR"], ["USD", "USD"], ["GBP", "GBP"]])}`;
     case "iban": return `${qrField("recipient", t("recipient"))}${qrField("iban", t("iban"))}${qrField("bic", t("bic"), "text", { required: false })}${qrField("amount", t("amount"), "number", { extra: 'min="0.01" step="0.01"' })}${qrField("reason", t("paymentReason"), "text", { required: false, full: true })}`;
-    case "sms": return `${qrField("phone", t("enterPhone"), "tel")}${qrTextarea("message", t("smsMessage"))}`;
+    case "sms": return `${qrField("phone", t("enterPhone"), "tel")}${qrTextarea("message", t("smsMessage"))}<div class="field-help full">${icon("info", 14)} ${t("phoneFormatHint")}</div>`;
     case "event": return `${qrField("title", t("eventTitle"))}${qrField("start", t("eventStart"), "datetime-local")}${qrField("end", t("eventEnd"), "datetime-local")}${qrField("location", t("location"), "text", { required: false })}${qrTextarea("description", t("description"), false)}`;
     case "social": return `${qrSelect("platform", t("socialPlatform"), [["instagram", "Instagram"], ["facebook", "Facebook"], ["tiktok", "TikTok"], ["linkedin", "LinkedIn"], ["youtube", "YouTube"], ["x", "X / Twitter"]])}${qrField("url", t("profileUrl"), "url")}`;
-    case "whatsapp": return `${qrField("phone", t("enterWhatsapp"), "tel")}${qrTextarea("message", t("whatsappMessage"), false)}`;
-    case "phone": return qrField("phone", t("enterPhone"), "tel", { full: true });
+    case "whatsapp": return `${qrField("phone", t("enterWhatsapp"), "tel")}${qrTextarea("message", t("whatsappMessage"), false)}<div class="field-help full">${icon("info", 14)} ${t("phoneFormatHint")}</div>`;
+    case "phone": return `${qrField("phone", t("enterPhone"), "tel", { full: true })}<div class="field-help full">${icon("info", 14)} ${t("phoneFormatHint")}</div>`;
     case "email": return qrField("email", t("enterEmail"), "email", { full: true });
     case "text": return qrTextarea("text", t("enterText"));
     case "barcode": return `${qrSelect("format", t("barcodeFormat"), [["CODE128", "Code128"], ["EAN13", "EAN-13"], ["EAN8", "EAN-8"], ["UPC", "UPC-A"]])}${qrField("value", t("barcodeValue"))}`;
@@ -3097,13 +3100,31 @@ async function generateQr() {
 
 function buildQrContent(value, whatsappMessage = "") {
   if (appState.qrType === "url") return normalizeSmartUrl(value);
-  if (appState.qrType === "phone") return `tel:${value.replace(/\s+/g, "")}`;
+  if (appState.qrType === "phone") return `tel:${normalizePhoneForTel(value)}`;
   if (appState.qrType === "email") return `mailto:${value}`;
   if (appState.qrType === "whatsapp") {
-    const digits = value.replace(/\D/g, "");
+    const digits = normalizePhoneForWhatsapp(value);
     return `https://wa.me/${digits}${whatsappMessage ? `?text=${encodeURIComponent(whatsappMessage)}` : ""}`;
   }
   return value;
+}
+
+function normalizePhoneDigits(value = "") {
+  return String(value).replace(/\D/g, "");
+}
+
+function normalizePhoneForWhatsapp(value = "") {
+  const digits = normalizePhoneDigits(value);
+  return digits.startsWith("00") ? digits.slice(2) : digits;
+}
+
+function normalizePhoneForTel(value = "") {
+  const trimmed = String(value).trim();
+  const digits = normalizePhoneDigits(trimmed);
+  if (!digits) return "";
+  if (trimmed.startsWith("+")) return `+${digits}`;
+  if (digits.startsWith("00")) return `+${digits.slice(2)}`;
+  return digits;
 }
 
 function normalizeSmartUrl(value) {
@@ -3123,7 +3144,7 @@ function isValidQrInput(value) {
   }
   if (appState.qrType === "email") return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   if (appState.qrType === "phone") return /^[+\d][\d\s().-]{5,}$/.test(value);
-  if (appState.qrType === "whatsapp") return value.replace(/\D/g, "").length >= 7;
+  if (appState.qrType === "whatsapp") return normalizePhoneForWhatsapp(value).length >= 7;
   return value.length > 0;
 }
 
@@ -3228,17 +3249,17 @@ function buildSmartQrContent(values) {
   const wifiEscape = (value = "") => String(value).replace(/([\\;,":])/g, "\\$1");
   switch (appState.qrType) {
     case "url": return normalizeSmartUrl(values.url);
-    case "phone": return `tel:${values.phone.replace(/\s+/g, "")}`;
+    case "phone": return `tel:${normalizePhoneForTel(values.phone)}`;
     case "email": return `mailto:${values.email}`;
     case "text": return values.text;
-    case "whatsapp": return `https://wa.me/${values.phone.replace(/\D/g, "")}${values.message ? `?text=${encodeURIComponent(values.message)}` : ""}`;
+    case "whatsapp": return `https://wa.me/${normalizePhoneForWhatsapp(values.phone)}${values.message ? `?text=${encodeURIComponent(values.message)}` : ""}`;
     case "wifi": return `WIFI:T:${values.encryption};S:${wifiEscape(values.ssid)};P:${wifiEscape(values.password)};H:${values.hidden ? "true" : "false"};;`;
-    case "vcard": return `BEGIN:VCARD\nVERSION:3.0\nFN:${values.name}\nORG:${values.organization || ""}\nTEL:${values.phone}\nEMAIL:${values.email || ""}\nURL:${values.url || ""}\nADR:;;${values.address || ""};;;;\nEND:VCARD`;
+    case "vcard": return `BEGIN:VCARD\nVERSION:3.0\nFN:${values.name}\nORG:${values.organization || ""}\nTEL:${normalizePhoneForTel(values.phone)}\nEMAIL:${values.email || ""}\nURL:${values.url || ""}\nADR:;;${values.address || ""};;;;\nEND:VCARD`;
     case "maps": return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(values.place)}`;
     case "menu": return normalizeSmartUrl(values.url);
     case "paypal": return `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(values.email)}&currency_code=${values.currency}${values.amount ? `&amount=${encodeURIComponent(values.amount)}` : ""}`;
     case "iban": return `BCD\n002\n1\nSCT\n${values.bic || ""}\n${values.recipient}\n${values.iban.replace(/\s/g, "").toUpperCase()}\nEUR${Number(values.amount).toFixed(2)}\n\n\n${values.reason || ""}`;
-    case "sms": return `SMSTO:${values.phone.replace(/\s/g, "")}:${values.message}`;
+    case "sms": return `SMSTO:${normalizePhoneForTel(values.phone)}:${values.message}`;
     case "event": return `BEGIN:VEVENT\nSUMMARY:${values.title}\nDTSTART:${toCalendarDate(values.start)}\nDTEND:${toCalendarDate(values.end)}\nLOCATION:${values.location || ""}\nDESCRIPTION:${values.description || ""}\nEND:VEVENT`;
     case "social": return normalizeSmartUrl(values.url);
     default: return values.url || values.text || "";
@@ -3250,7 +3271,7 @@ function validateSmartQr(values) {
     try { return ["http:", "https:"].includes(new URL(normalizeSmartUrl(values.url)).protocol); } catch { return false; }
   }
   if (["email", "paypal"].includes(appState.qrType)) return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email);
-  if (["phone", "whatsapp", "sms"].includes(appState.qrType)) return String(values.phone || "").replace(/\D/g, "").length >= 7;
+  if (["phone", "whatsapp", "sms"].includes(appState.qrType)) return normalizePhoneDigits(values.phone).length >= 7;
   if (appState.qrType === "iban") return /^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(String(values.iban || "").replace(/\s/g, "").toUpperCase()) && Number(values.amount) > 0;
   if (appState.qrType === "event") return Boolean(values.title && values.start && values.end && new Date(values.end) > new Date(values.start));
   if (appState.qrType === "barcode") return validateBarcode(values.format, values.value);
