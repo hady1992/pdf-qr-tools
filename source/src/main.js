@@ -780,6 +780,7 @@ const editorState = {
   activeTool: "select",
   isErasing: false,
   eraseChanged: false,
+  clipboardObject: null,
   text: {
     family: "Arial",
     size: 28,
@@ -829,6 +830,7 @@ Object.assign(runtimeTranslations.ar, {
   eraser: "\u0645\u0645\u062d\u0627\u0629",
   eraserHint: "\u0627\u0633\u062d\u0628 \u0641\u0648\u0642 \u0627\u0644\u0646\u0635 \u0623\u0648 \u0627\u0644\u0631\u0633\u0645 \u0623\u0648 \u0627\u0644\u062a\u0645\u064a\u064a\u0632 \u0627\u0644\u0630\u064a \u0623\u0636\u0641\u062a\u0647 \u0644\u0645\u0633\u062d\u0647.",
   eraserSize: "\u062d\u062c\u0645 \u0627\u0644\u0645\u0645\u062d\u0627\u0629",
+  copiedObject: "\u062a\u0645 \u0646\u0633\u062e \u0627\u0644\u0639\u0646\u0635\u0631",
   imageQr: "\u0643\u064a\u0648 \u0622\u0631 \u0644\u0644\u0635\u0648\u0631\u0629",
   imageQrTitle: "\u062d\u0648\u0651\u0644 \u0635\u0648\u0631\u062a\u0643 \u0625\u0644\u0649 QR Code \u0622\u0645\u0646",
   imageQrLead: "\u0627\u0631\u0641\u0639 \u0635\u0648\u0631\u0629\u060c \u0648\u0633\u0646\u0646\u0634\u0626 \u0644\u0647\u0627 \u0631\u0627\u0628\u0637\u064b\u0627 \u0641\u0631\u064a\u062f\u064b\u0627 \u0648QR Code \u064a\u0641\u062a\u062d \u0635\u0641\u062d\u0629 \u0627\u0644\u0635\u0648\u0631\u0629.",
@@ -928,6 +930,7 @@ Object.assign(runtimeTranslations.ar, {
   description: "\u0627\u0644\u0648\u0635\u0641",
 });
 Object.assign(runtimeTranslations.de, {
+  copiedObject: "Element kopiert",
   eraserSize: "Radierergr\u00f6\u00dfe", imageQr: "Bild-QR", imageQrTitle: "Bild in einen sicheren QR-Code verwandeln",
   imageQrLead: "Bild hochladen, einen eindeutigen Link erstellen und als QR-Code teilen.",
   imageQrExplanation: "Der QR-Code enth\u00e4lt nicht das Bild selbst, sondern einen Link zur Bildseite.",
@@ -966,6 +969,7 @@ Object.assign(runtimeTranslations.de, {
   description: "Beschreibung",
 });
 Object.assign(runtimeTranslations.en, {
+  copiedObject: "Object copied",
   eraserSize: "Eraser size", imageQr: "Image QR", imageQrTitle: "Turn an image into a secure QR code",
   imageQrLead: "Upload an image, create a unique viewing link, and share it as a QR code.",
   imageQrExplanation: "The QR code does not contain the image itself. It contains a link that opens the image page.",
@@ -3318,8 +3322,8 @@ function bindEditorEvents() {
   document.querySelectorAll("[data-tool]").forEach((button) =>
     button.addEventListener("click", () => {
       if (button.dataset.tool === "text") {
-        setActiveTool("select", false);
-        addText();
+        setActiveTool("text", false);
+        showToast(t("textHint"));
         return;
       }
       setActiveTool(button.dataset.tool);
@@ -3938,23 +3942,31 @@ function configureDrawingBrush() {
 function addText(x = editorState.baseWidth / 2 - 90, y = editorState.baseHeight / 2) {
   const canvas = editorState.canvas;
   if (!canvas) return;
-  const object = new IText(t("text"), {
-    left: Math.max(10, x),
-    top: Math.max(10, y),
+  const safeX = Math.max(8, Math.min(x, editorState.baseWidth - 40));
+  const safeY = Math.max(8, Math.min(y, editorState.baseHeight - 20));
+  const object = new IText("", {
+    left: safeX,
+    top: safeY,
     fontFamily: editorState.text.family,
     fontSize: editorState.text.size,
     fill: editorState.text.color,
     textAlign: editorState.text.align,
+    opacity: 1,
+    paintFirst: "fill",
+    strokeWidth: 0,
     padding: 6,
     cornerColor: "#0d7c73",
     borderColor: "#0d7c73",
     cornerStyle: "circle",
     transparentCorners: false,
+    objectCaching: false,
+    editable: true,
+    selectable: true,
+    evented: true,
   });
   canvas.add(object);
   canvas.setActiveObject(object);
   object.enterEditing();
-  object.selectAll();
   canvas.requestRenderAll();
   recordHistory();
 }
@@ -4064,6 +4076,44 @@ function deleteSelectedObject() {
 
 function serializeCanvas() {
   return editorState.canvas ? JSON.stringify(editorState.canvas.toJSON(["replacementMaskId"])) : JSON.stringify({ version: "6", objects: [] });
+}
+
+function isTextObjectEditing(object = editorState.canvas?.getActiveObject()) {
+  return object?.type === "i-text" && object.isEditing;
+}
+
+async function copySelectedObject() {
+  const object = editorState.canvas?.getActiveObject();
+  if (!object || isTextObjectEditing(object)) return false;
+  editorState.clipboardObject = await object.clone(["replacementMaskId"]);
+  showToast(t("copiedObject"));
+  return true;
+}
+
+async function pasteCopiedObject() {
+  const canvas = editorState.canvas;
+  if (!canvas || !editorState.clipboardObject || isTextObjectEditing()) return false;
+  const clone = await editorState.clipboardObject.clone(["replacementMaskId"]);
+  const offset = 18;
+  clone.set({
+    left: Math.min((clone.left || 0) + offset, Math.max(8, editorState.baseWidth - 40)),
+    top: Math.min((clone.top || 0) + offset, Math.max(8, editorState.baseHeight - 20)),
+    evented: true,
+    selectable: true,
+  });
+  clone.setCoords();
+  canvas.discardActiveObject();
+  canvas.add(clone);
+  canvas.setActiveObject(clone);
+  canvas.requestRenderAll();
+  editorState.clipboardObject = await clone.clone(["replacementMaskId"]);
+  recordHistory();
+  return true;
+}
+
+async function duplicateSelectedObject() {
+  if (!(await copySelectedObject())) return;
+  await pasteCopiedObject();
 }
 
 function recordHistory() {
@@ -5073,15 +5123,33 @@ window.addEventListener("keydown", (event) => {
   if (appState.route !== "editor" || !editorState.canvas) return;
   const target = event.target;
   if (target?.matches("input, textarea, [contenteditable='true']")) return;
+  if (isTextObjectEditing()) return;
+  const key = event.key.toLowerCase();
+  const isModifier = event.ctrlKey || event.metaKey;
+  if (isModifier && key === "c" && editorState.canvas.getActiveObject()) {
+    event.preventDefault();
+    copySelectedObject();
+    return;
+  }
+  if (isModifier && key === "v" && editorState.clipboardObject) {
+    event.preventDefault();
+    pasteCopiedObject();
+    return;
+  }
+  if (isModifier && key === "d" && editorState.canvas.getActiveObject()) {
+    event.preventDefault();
+    duplicateSelectedObject();
+    return;
+  }
   if (event.key === "Delete" || event.key === "Backspace") {
     event.preventDefault();
     deleteSelectedObject();
   }
-  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+  if (isModifier && key === "z") {
     event.preventDefault();
     event.shiftKey ? redo() : undo();
   }
-  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "y") {
+  if (isModifier && key === "y") {
     event.preventDefault();
     redo();
   }
