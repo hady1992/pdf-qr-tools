@@ -15,3 +15,10 @@ public/storage/images/*
 *.log
 .DS_Store
 Thumbs.db
+
+playwright-report/
+test-results/
+storage/*.sqlite*
+storage/.token-secret
+storage/images/*
+!storage/images/.gitkeep

@@ -5,17 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "vite build --base=/",
-    "preview": "vite preview --host 0.0.0.0"
+    "build": "vite build --base=/ && node scripts/build-hostinger.mjs",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "node --test tests/pdfOperations.test.js",
+    "test:browser": "playwright test"
   },
   "dependencies": {
     "fabric": "^6.7.1",
-    "jsbarcode": "^3.12.3",
+    "fflate": "^0.8.3",
     "pdf-lib": "^1.17.1",
-    "pdfjs-dist": "^5.3.31",
-    "qrcode": "^1.5.4"
+    "pdfjs-dist": "^5.3.31"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "vite": "^7.0.0"
   }
 }
