@@ -7,10 +7,11 @@ AddType text/javascript .mjs
   RewriteRule ^storage(?:/|$) - [F,L,NC]
   RewriteRule ^robots\.txt$ /robots.php [L,NC]
   RewriteRule ^sitemap\.xml$ /sitemap.php [L,NC]
-  RewriteRule ^api/ - [L]
+  RewriteRule ^(?:api|source)(?:/|$) - [G,L,NC]
+  RewriteRule ^(?:qr|image-qr-code|view/image)(?:/|$) / [R=302,L,NC]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(?:image-qr-code|view/image/[a-f0-9]{32})/?$ /index.html [L,NC]
+  RewriteRule ^(?:home|tools|editor|privacy|contact|merge-pdf|split-pdf|images-to-pdf|pdf-to-images|remove-pages|extract-pages|compress-pdf|sign-pdf|rotate-pdf|page-numbers|watermark-pdf|redact-pdf|crop-pdf|reorder-pages|prepare-submission)/?$ /index.html [L,NC]
 </IfModule>
 
 <IfModule mod_headers.c>
@@ -32,4 +33,10 @@ AddType text/javascript .mjs
 
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/css application/javascript text/javascript application/json image/svg+xml
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "^(index\.html|service-worker\.js|manifest\.webmanifest)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
 </IfModule>

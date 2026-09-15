@@ -1,0 +1,84 @@
+/* PDF Studio workspace. Shared editor primitives live in style.css. */
+:root { --paper: #f6f7f9; --surface-2: #f1f4f5; --ink: #202a34; --muted: #64717d; --line: #e1e6eb; --brand: #087f75; --brand-dark: #05655e; --brand-soft: #e2f4ef; --radius: 12px; }
+body { background: var(--paper); }
+.site-header { background: #fff; border-bottom: 1px solid var(--line); backdrop-filter: none; }
+.container { width: min(1240px, calc(100% - 48px)); }
+.header-inner { gap: 24px; }
+.brand { white-space: nowrap; }
+.brand-mark { border-radius: 10px; box-shadow: none; }
+.main-nav { gap: 3px; }
+.nav-link { white-space: nowrap; padding: 10px 12px; font-size: 13px; }
+.header-actions > .button { display: none; }
+.workspace-hero { padding-block: 64px 38px; text-align: center; }
+.workspace-kicker { display: flex; justify-content: center; align-items: center; gap: 8px; color: var(--brand); font-size: 12px; font-weight: 750; letter-spacing: 1.1px; margin-bottom: 20px; }
+.workspace-hero h1 { font-size: clamp(30px, 4vw, 51px); line-height: 1.35; letter-spacing: -1.5px; margin: 0 auto; max-width: 940px; }
+.workspace-hero h1 span { color: var(--brand); }
+.workspace-hero > p { color: var(--muted); max-width: 780px; margin: 20px auto; font-size: 17px; line-height: 1.9; }
+.workspace-trust { display: flex; flex-wrap: wrap; gap: 12px 26px; justify-content: center; margin-top: 24px; }
+.workspace-trust span { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #687782; }
+.workspace-trust svg { color: var(--brand); }
+.tools-search-card { border: 0; padding: 0; background: transparent; box-shadow: none; border-radius: 0; }
+.workspace-tools-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 22px; }
+.workspace-tools-heading h2 { font-size: 20px; margin: 0; }
+.search-box { margin: 0; width: min(430px, 48%); min-height: 46px; background: #fff; border-radius: 9px; border: 1px solid var(--line); box-shadow: none; }
+.search-box input { font-size: 13px; min-width: 0; }
+.tool-filter-row { gap: 8px; margin-bottom: 25px; }
+.tool-filter { border-radius: 7px; background: #fff; border-color: var(--line); padding: 9px 17px; font-size: 12px; }
+.tool-filter.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+.tool-results-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 15px; }
+.tool-data-card { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 0; min-height: 225px; padding: 26px 23px 29px; background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: none; transition: border-color .15s, transform .15s, box-shadow .15s; }
+.tool-data-card:hover { transform: translateY(-3px); border-color: #b7cbc5; box-shadow: 0 9px 24px #26394a0b; }
+.tool-data-icon { width: 49px; height: 49px; border-radius: 10px; margin-bottom: 20px; background: #e6f4ed; color: #228254; }
+.tool-data-card[data-category="organize"] .tool-data-icon { background: #fff0e6; color: #d9773d; }
+.tool-data-card[data-category="edit"] .tool-data-icon { background: #e9edff; color: #6563ce; }
+.tool-data-card[data-category="privacy"] .tool-data-icon { background: #ffebef; color: #cb526d; }
+.tool-data-card[data-category="submission"] .tool-data-icon { background: #e6f3fb; color: #3784b8; }
+.tool-data-card h3 { margin: 0 0 9px; font-size: 17px; line-height: 1.5; }
+.tool-data-card p { font-size: 12px; line-height: 1.8; margin: 0; color: var(--muted); }
+.tool-card-arrow { position: absolute; top: 32px; inset-inline-end: 22px; color: #a4adb5; }
+[dir="rtl"] .tool-card-arrow { transform: rotate(180deg); }
+.workspace-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; padding-block: 65px; }
+.workspace-bottom > div { border-top: 1px solid var(--line); padding-top: 24px; }
+.workspace-bottom svg { color: var(--brand); margin-bottom: 14px; }
+.workspace-bottom h2 { font-size: 19px; }
+.workspace-bottom p { color: var(--muted); font-size: 14px; line-height: 1.8; }
+.site-footer { background: #fff; border-top: 1px solid var(--line); }
+.text-link { border: 0; background: none; color: var(--brand); font-weight: 650; cursor: pointer; padding: 8px 0; }
+.tool-fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 22px; }
+.tool-fieldset:disabled { opacity: .65; }
+.pdf-tool-card { border-radius: 14px; box-shadow: none; }
+.tool-drop-zone { background: #f4faf8; border: 2px dashed #b5d5cd; border-radius: 12px; min-height: 210px; }
+.tool-drop-zone:focus-within { outline: 3px solid #78bbb0; outline-offset: 4px; }
+.page-intro { padding-top: 38px; }
+.page-intro h1 { font-size: clamp(28px, 3.2vw, 42px); }
+.page-thumb-tool { position: relative; background: #f7f8fa; padding: 12px; border-radius: 9px; border: 1px solid var(--line); }
+.page-preview-image, .page-select { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.page-select { width: 100%; border: 2px solid transparent; background: transparent; border-radius: 7px; padding: 10px; cursor: pointer; color: var(--ink); }
+.page-select[aria-pressed="true"] { border-color: var(--brand); background: var(--brand-soft); }
+[data-pdf-tool="remove-pages"] .page-select[aria-pressed="true"] { border-color: #c64c59; background: #ffebed; }
+.page-thumb-tool img { object-fit: contain; max-height: 180px; box-shadow: 0 2px 7px #23384c15; transition: transform .15s; }
+.page-thumb-tool strong { font-size: 12px; }
+.selection-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 18px 0; }
+.card-actions { gap: 6px; justify-content: center; }
+.card-actions button { cursor: pointer; min-height: 32px; min-width: 30px; }
+.card-actions button:disabled { opacity: .35; cursor: default; }
+.image-sort-card { grid-template-columns: 55px minmax(0, 1fr) auto; }
+.image-sort-card strong, .file-summary strong { overflow-wrap: anywhere; }
+.editor-export-note { font-size: 12px; line-height: 1.8; color: var(--muted); margin-top: 0; margin-bottom: 20px; max-width: 1180px; }
+.editor-image-button { cursor: pointer; }
+.tool-actions-row { gap: 10px; }
+.pdf-tool-result { margin-top: 20px; }
+.tool-seo-card details p { line-height: 1.8; }
+.image-result-grid { min-width: 0; }
+.image-result span { overflow-wrap: anywhere; }
+button:focus-visible, a:focus-visible { outline: 3px solid #72b5a8; outline-offset: 3px; }
+[hidden] { display: none !important; }
+@media (max-width: 1100px) { .tool-results-grid { grid-template-columns: repeat(3,minmax(0,1fr)); } .header-inner { gap: 10px; } .nav-link { padding: 8px; } }
+@media (max-width: 850px) { .tool-results-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .workspace-hero { padding-top: 44px; } .workspace-hero h1 { max-width: 650px; } .workspace-tools-heading { align-items: stretch; flex-direction: column; gap: 16px; } .search-box { width: 100%; } .pdf-tool-layout { grid-template-columns: 1fr; } .workspace-bottom { gap: 22px; } }
+@media (max-width: 540px) { .container { width: calc(100% - 28px); } .workspace-hero { padding-top: 34px; padding-bottom: 30px; } .workspace-hero h1 { font-size: 30px; letter-spacing: -.6px; } .workspace-hero > p { font-size: 14px; } .workspace-kicker { font-size: 10px; } .workspace-trust { gap: 12px; } .workspace-trust span { font-size: 10px; } .tool-results-grid { gap: 10px; } .tool-data-card { min-height: 225px; padding: 18px 14px 22px; } .tool-data-card h3 { font-size: 15px; } .tool-data-card p { font-size: 11px; line-height: 1.85; } .tool-data-icon { width: 43px; height: 43px; margin-bottom: 15px; } .tool-card-arrow { top: 22px; inset-inline-end: 12px; } .tool-filter { padding: 8px 11px; } .workspace-bottom { grid-template-columns: 1fr; padding-block: 38px; } .pdf-tool-card { padding: 16px; } .tool-actions-row > .button { width: 100%; } .page-thumb-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .image-sort-card { grid-template-columns: 42px minmax(0,1fr); } .image-sort-card .card-actions { grid-column: 1 / -1; } .editor-export-note { font-size: 11px; } }
+.site-footer { color: var(--muted); }
+.footer-brand .brand, .footer-title { color: var(--ink); }
+.footer-brand p { color: var(--muted); }
+.footer-links a:hover { color: var(--brand); }
+.footer-bottom { border-top-color: var(--line); }
+@media (max-width: 540px) { .site-header .brand-text { display: inline; font-size: 14px; } }
